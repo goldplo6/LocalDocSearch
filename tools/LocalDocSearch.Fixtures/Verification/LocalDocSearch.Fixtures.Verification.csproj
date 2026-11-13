@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <!-- Artifact-only verifier: never builds Core/Extractors or changes their project graph. -->
+  <ItemGroup>
+    <Reference Include="../bin/Release/net10.0/*.dll" />
+    <Reference Include="../../../src/LocalDocSearch.Core/bin/Release/net10.0/LocalDocSearch.Core.dll" />
+    <Reference Include="../../../src/LocalDocSearch.Extractors/bin/Release/net10.0/LocalDocSearch.Extractors.dll" />
+  </ItemGroup>
+</Project>

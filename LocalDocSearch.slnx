@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/LocalDocSearch.Core/LocalDocSearch.Core.csproj" />
+    <Project Path="src/LocalDocSearch.Extractors/LocalDocSearch.Extractors.csproj" />
+    <Project Path="src/LocalDocSearch.Desktop/LocalDocSearch.Desktop.csproj" />
+    <Project Path="src/LocalDocSearch.Settings/LocalDocSearch.Settings.csproj" />
+    <Project Path="src/LocalDocSearch.Navigation/LocalDocSearch.Navigation.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/LocalDocSearch.Core.Tests/LocalDocSearch.Core.Tests.csproj" />
+    <Project Path="tests/LocalDocSearch.Extractors.Tests/LocalDocSearch.Extractors.Tests.csproj" />
+    <Project Path="tests/LocalDocSearch.Desktop.Tests/LocalDocSearch.Desktop.Tests.csproj" />
+    <Project Path="tests/LocalDocSearch.Settings.Tests/LocalDocSearch.Settings.Tests.csproj" />
+    <Project Path="tests/LocalDocSearch.Navigation.Tests/LocalDocSearch.Navigation.Tests.csproj" />
+    <Project Path="tests/LocalDocSearch.Benchmarks.Tests/LocalDocSearch.Benchmarks.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/LocalDocSearch.Fixtures/LocalDocSearch.Fixtures.csproj" />
+    <Project Path="tools/LocalDocSearch.Benchmarks/LocalDocSearch.Benchmarks.csproj" />
+  </Folder>
+</Solution>

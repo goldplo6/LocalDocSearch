@@ -1,0 +1,134 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="LocalDocSearch.Desktop.App"
+             RequestedThemeVariant="Light">
+  <Application.Resources>
+    <SolidColorBrush x:Key="DsBackgroundBrush" Color="#F4F6FA" />
+    <SolidColorBrush x:Key="DsSurfaceBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="DsSurfaceSoftBrush" Color="#F8FAFC" />
+    <SolidColorBrush x:Key="DsTextBrush" Color="#1E293B" />
+    <SolidColorBrush x:Key="DsMutedBrush" Color="#718096" />
+    <SolidColorBrush x:Key="DsBorderBrush" Color="#E6EBF2" />
+    <SolidColorBrush x:Key="DsAccentBrush" Color="#315CE7" />
+    <SolidColorBrush x:Key="DsAccentSoftBrush" Color="#EEF2FF" />
+    <SolidColorBrush x:Key="DsWarningBrush" Color="#BF4450" />
+    <SolidColorBrush x:Key="DsMatchBrush" Color="#FFF0BB" />
+    <Color x:Key="SystemAccentColor">#315CE7</Color>
+  </Application.Resources>
+  <Application.Styles>
+    <FluentTheme />
+    <Style Selector="Window">
+      <Setter Property="Background" Value="{DynamicResource DsBackgroundBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource DsTextBrush}" />
+      <Setter Property="FontFamily" Value="Segoe UI, Microsoft YaHei UI" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Icon" Value="avares://DocSearch/Assets/app-icon.ico" />
+    </Style>
+    <!-- A small explicit button template keeps the Demo's flat surfaces in every state. -->
+    <Style Selector="Button">
+      <Setter Property="Padding" Value="10,5" />
+      <Setter Property="MinHeight" Value="26" />
+      <Setter Property="CornerRadius" Value="7" />
+      <Setter Property="Background" Value="{DynamicResource DsSurfaceBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource DsTextBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource DsBorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <ContentPresenter Name="PART_ContentPresenter"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Padding="{TemplateBinding Padding}"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                            RecognizesAccessKey="True" />
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#F3F6FC" />
+      <Setter Property="BorderBrush" Value="#D6DEED" />
+    </Style>
+    <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#EAF0FC" />
+    </Style>
+    <Style Selector="Button:focus-visible /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BorderBrush" Value="{DynamicResource DsAccentBrush}" />
+    </Style>
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="{DynamicResource DsAccentBrush}" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="BorderBrush" Value="{DynamicResource DsAccentBrush}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#264DCF" />
+      <Setter Property="BorderBrush" Value="#264DCF" />
+    </Style>
+    <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#2043B8" />
+      <Setter Property="BorderBrush" Value="#2043B8" />
+    </Style>
+    <Style Selector="Button.quiet">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource DsMutedBrush}" />
+    </Style>
+    <Style Selector="Button.quiet:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#EDF2FA" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+    <Style Selector="Button.chip">
+      <Setter Property="Background" Value="{DynamicResource DsAccentSoftBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource DsAccentBrush}" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Padding" Value="7,2" />
+      <Setter Property="MinHeight" Value="22" />
+    </Style>
+    <Style Selector="Button.icon">
+      <Setter Property="Padding" Value="6,3" />
+      <Setter Property="MinWidth" Value="26" />
+    </Style>
+    <Style Selector="Button:disabled">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+    <Style Selector="TextBox">
+      <Setter Property="CornerRadius" Value="7" />
+      <Setter Property="BorderBrush" Value="{DynamicResource DsBorderBrush}" />
+      <Setter Property="Background" Value="{DynamicResource DsSurfaceBrush}" />
+      <Setter Property="SelectionBrush" Value="{DynamicResource DsMatchBrush}" />
+      <Setter Property="SelectionForegroundBrush" Value="{DynamicResource DsTextBrush}" />
+      <Setter Property="CaretBrush" Value="{DynamicResource DsAccentBrush}" />
+    </Style>
+    <Style Selector="TextBox:focus-within">
+      <Setter Property="BorderBrush" Value="{DynamicResource DsAccentBrush}" />
+    </Style>
+    <Style Selector="TextBox.code-input">
+      <Setter Property="FontFamily" Value="Cascadia Code, Consolas, Microsoft YaHei UI" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Padding" Value="12" />
+    </Style>
+    <Style Selector="ComboBox">
+      <Setter Property="CornerRadius" Value="7" />
+      <Setter Property="BorderBrush" Value="{DynamicResource DsBorderBrush}" />
+      <Setter Property="Background" Value="{DynamicResource DsSurfaceBrush}" />
+    </Style>
+    <Style Selector="TextBlock.caption">
+      <Setter Property="Foreground" Value="{DynamicResource DsMutedBrush}" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="TextBlock.muted">
+      <Setter Property="Foreground" Value="{DynamicResource DsMutedBrush}" />
+    </Style>
+    <Style Selector="TextBlock.section-title">
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="FontSize" Value="15" />
+    </Style>
+  </Application.Styles>
+</Application>

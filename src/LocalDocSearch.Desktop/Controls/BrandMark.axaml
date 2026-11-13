@@ -1,0 +1,7 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="LocalDocSearch.Desktop.Controls.BrandMark"
+             Width="32" Height="32" IsHitTestVisible="False" Focusable="False">
+  <Image Source="avares://DocSearch/Assets/app-icon.png"
+         Stretch="Uniform" />
+</UserControl>

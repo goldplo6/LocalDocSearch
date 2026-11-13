@@ -1,0 +1,140 @@
+{
+  "SchemaVersion": 1,
+  "Generator": "scripts/generate-app-icon.ps1",
+  "DesignSpace": "256x256",
+  "Palette": {
+    "Tile": "#315CE7",
+    "PaperAndLens": "#FFFFFF",
+    "Fold": "#C8D5FF"
+  },
+  "SvgSha256": "173269c8a8bcc924e5de8ff52bf65d10b897fcf6b66a1ba01a93476a4db0ca7a",
+  "IcoSha256": "e277b1ddb41c852a79892010cd83834c488a346e711d3160a340982a84735ebd",
+  "Png256Sha256": "5a2efde6fca6e5a6a6f3139ea8ddbf47fdaab6e76097a9146790e0a44fa8646a",
+  "Png512Sha256": "f5fa5b4c7c549c89eef3ade7d53056f58fffad96f433ceb8c61cee36ceca1a8b",
+  "Png512Alpha": {
+    "Width": 512,
+    "Height": 512,
+    "TransparentPixels": 39542,
+    "EdgePixels": 2987,
+    "OpaquePixels": 219615
+  },
+  "Frames": [
+    {
+      "Width": 16,
+      "Height": 16,
+      "Bytes": 696,
+      "Sha256": "50058b2d414cbeca3e6b722e2377b60c58ea55654cebe7f54a5a947f01fa6d06",
+      "Alpha": {
+        "Width": 16,
+        "Height": 16,
+        "TransparentPixels": 12,
+        "EdgePixels": 52,
+        "OpaquePixels": 192
+      }
+    },
+    {
+      "Width": 20,
+      "Height": 20,
+      "Bytes": 805,
+      "Sha256": "32956a407eb2f84daa575ef09603ebd97f4a0a3071fd21e237261de864eacf78",
+      "Alpha": {
+        "Width": 20,
+        "Height": 20,
+        "TransparentPixels": 20,
+        "EdgePixels": 68,
+        "OpaquePixels": 312
+      }
+    },
+    {
+      "Width": 24,
+      "Height": 24,
+      "Bytes": 935,
+      "Sha256": "54fc31507a9a6b3deccb9486ec3c364677c60769e0cba94f2410681a673b2e09",
+      "Alpha": {
+        "Width": 24,
+        "Height": 24,
+        "TransparentPixels": 32,
+        "EdgePixels": 88,
+        "OpaquePixels": 456
+      }
+    },
+    {
+      "Width": 32,
+      "Height": 32,
+      "Bytes": 1221,
+      "Sha256": "7ab22f6a822434e96a5385315b3615cd050a3d0396f2e0953761bf62ee0d4af1",
+      "Alpha": {
+        "Width": 32,
+        "Height": 32,
+        "TransparentPixels": 69,
+        "EdgePixels": 183,
+        "OpaquePixels": 772
+      }
+    },
+    {
+      "Width": 40,
+      "Height": 40,
+      "Bytes": 1424,
+      "Sha256": "5c17da8638ab5d6825921e737272856a289edc1e59efb5d7e8dcb75817a1d112",
+      "Alpha": {
+        "Width": 40,
+        "Height": 40,
+        "TransparentPixels": 204,
+        "EdgePixels": 140,
+        "OpaquePixels": 1256
+      }
+    },
+    {
+      "Width": 48,
+      "Height": 48,
+      "Bytes": 1726,
+      "Sha256": "00db4e41cfa271da63091a95525a4c4060d49b850ad604ae401a50d2d21b747c",
+      "Alpha": {
+        "Width": 48,
+        "Height": 48,
+        "TransparentPixels": 272,
+        "EdgePixels": 172,
+        "OpaquePixels": 1860
+      }
+    },
+    {
+      "Width": 64,
+      "Height": 64,
+      "Bytes": 2324,
+      "Sha256": "923d2d0f4262f33c6567caffb72f87f7e332a59a90fcd274fbf4b7e86706039e",
+      "Alpha": {
+        "Width": 64,
+        "Height": 64,
+        "TransparentPixels": 452,
+        "EdgePixels": 372,
+        "OpaquePixels": 3272
+      }
+    },
+    {
+      "Width": 128,
+      "Height": 128,
+      "Bytes": 4608,
+      "Sha256": "9d40be83e1d7c334082d842483bdc030b9506542f56939c807feabc780779450",
+      "Alpha": {
+        "Width": 128,
+        "Height": 128,
+        "TransparentPixels": 2189,
+        "EdgePixels": 747,
+        "OpaquePixels": 13448
+      }
+    },
+    {
+      "Width": 256,
+      "Height": 256,
+      "Bytes": 9604,
+      "Sha256": "5a2efde6fca6e5a6a6f3139ea8ddbf47fdaab6e76097a9146790e0a44fa8646a",
+      "Alpha": {
+        "Width": 256,
+        "Height": 256,
+        "TransparentPixels": 9498,
+        "EdgePixels": 1509,
+        "OpaquePixels": 54529
+      }
+    }
+  ]
+}

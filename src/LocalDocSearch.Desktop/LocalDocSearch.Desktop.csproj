@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>DocSearch</AssemblyName>
+    <RootNamespace>LocalDocSearch.Desktop</RootNamespace>
+    <TargetFramework>net10.0</TargetFramework>
+    <ApplicationIcon>Assets/app-icon.ico</ApplicationIcon>
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets/app-icon.ico;Assets/app-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <ProjectReference Include="../LocalDocSearch.Core/LocalDocSearch.Core.csproj" />
+    <ProjectReference Include="../LocalDocSearch.Extractors/LocalDocSearch.Extractors.csproj" />
+    <ProjectReference Include="../LocalDocSearch.Settings/LocalDocSearch.Settings.csproj" />
+    <ProjectReference Include="../LocalDocSearch.Navigation/LocalDocSearch.Navigation.csproj" />
+  </ItemGroup>
+</Project>

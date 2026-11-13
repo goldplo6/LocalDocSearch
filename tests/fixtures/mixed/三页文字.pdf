@@ -1,0 +1,115 @@
+%PDF-1.7
+%LocalDocSearch-original-fixture
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R /Lang (zh-CN) >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [7 0 R 9 0 R 11 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type0 /BaseFont /STSong-Light /Encoding /UniGB-UCS2-H /DescendantFonts [4 0 R] /ToUnicode 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /CIDFontType0 /BaseFont /STSong-Light /CIDSystemInfo << /Registry (Adobe) /Ordering (GB1) /Supplement 4 >> /FontDescriptor 5 0 R /DW 1000 >>
+endobj
+5 0 obj
+<< /Type /FontDescriptor /FontName /STSong-Light /Flags 6 /FontBBox [-25 -254 1000 880] /ItalicAngle 0 /Ascent 880 /Descent -120 /CapHeight 880 /StemV 80 >>
+endobj
+6 0 obj
+<< /Length 591 >>
+stream
+/CIDInit /ProcSet findresource begin
+12 dict begin
+begincmap
+/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def
+/CMapName /LocalDocSearch-UCS def
+/CMapType 2 def
+1 begincodespacerange
+<0000> <FFFF>
+endcodespacerange
+19 beginbfchar
+<002A> <002A>
+<002E> <002E>
+<4E00> <4E00>
+<4E09> <4E09>
+<4E8C> <4E8C>
+<5B57> <5B57>
+<6587> <6587>
+<666E> <666E>
+<679C> <679C>
+<74DC> <74DC>
+<7B2C> <7B2C>
+<82F9> <82F9>
+<897F> <897F>
+<901A> <901A>
+<91CF> <91CF>
+<9762> <9762>
+<9875> <9875>
+<FF0C> <FF0C>
+<FF1A> <FF1A>
+endbfchar
+endcmap
+CMapName currentdict /CMap defineresource pop
+end
+end
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 64 >>
+stream
+BT
+/F1 20 Tf
+1 0 0 1 72 760 Tm
+<7B2C4E009875FF1A82F9679C> Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 10 0 R >>
+endobj
+10 0 obj
+<< /Length 100 >>
+stream
+BT
+/F1 20 Tf
+1 0 0 1 72 760 Tm
+<7B2C4E8C9875FF1A666E901A65875B57FF0C5B57976291CFFF1A002E002A> Tj
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 12 0 R >>
+endobj
+12 0 obj
+<< /Length 64 >>
+stream
+BT
+/F1 20 Tf
+1 0 0 1 72 760 Tm
+<7B2C4E099875FF1A897F74DC> Tj
+ET
+endstream
+endobj
+xref
+0 13
+0000000000 65535 f 
+0000000042 00000 n 
+0000000105 00000 n 
+0000000175 00000 n 
+0000000314 00000 n 
+0000000494 00000 n 
+0000000666 00000 n 
+0000001307 00000 n 
+0000001433 00000 n 
+0000001546 00000 n 
+0000001673 00000 n 
+0000001824 00000 n 
+0000001952 00000 n 
+trailer
+<< /Size 13 /Root 1 0 R >>
+startxref
+2066
+%%EOF

@@ -1,0 +1,74 @@
+[
+  {
+    "family": "avalonia",
+    "repository": "AvaloniaUI/Avalonia",
+    "commit": "5825bf8c66fba0c11e67c980d8ece6444576bffa",
+    "path": "docs/dependency-licenses/upstream/avalonia/licence.md",
+    "url": "https://raw.githubusercontent.com/AvaloniaUI/Avalonia/5825bf8c66fba0c11e67c980d8ece6444576bffa/licence.md",
+    "sha256": "213814d306090074d234d760239ff0f67eb9b8d20eefb4d5631bb39dbe0b769b"
+  },
+  {
+    "family": "avalonia",
+    "repository": "AvaloniaUI/Avalonia",
+    "commit": "5825bf8c66fba0c11e67c980d8ece6444576bffa",
+    "path": "docs/dependency-licenses/upstream/avalonia/NOTICE.md",
+    "url": "https://raw.githubusercontent.com/AvaloniaUI/Avalonia/5825bf8c66fba0c11e67c980d8ece6444576bffa/NOTICE.md",
+    "sha256": "dd6f80852d16320c865a2e403ffd1a8b07a0e34c5b37122c0bc2343639ff68e6"
+  },
+  {
+    "family": "avalonia.buildservices",
+    "repository": "AvaloniaUI/Avalonia.BuildServices",
+    "commit": "777f975b0a0cecf0311273711d56697212c558c0",
+    "path": "docs/dependency-licenses/upstream/avalonia.buildservices/LICENSE",
+    "url": "https://raw.githubusercontent.com/AvaloniaUI/Avalonia.BuildServices/777f975b0a0cecf0311273711d56697212c558c0/LICENSE",
+    "sha256": "94162c40c663bd96ec1b870e6aba6ef0a43f44c9eb500807e7965e7078f6dc47"
+  },
+  {
+    "family": "openxml",
+    "repository": "dotnet/Open-XML-SDK",
+    "commit": "3139fdfd27414548a41555f7848d5728f6e71a42",
+    "path": "docs/dependency-licenses/upstream/openxml/LICENSE",
+    "url": "https://raw.githubusercontent.com/dotnet/Open-XML-SDK/3139fdfd27414548a41555f7848d5728f6e71a42/LICENSE",
+    "sha256": "ed03ba352313a4ba7019d5bed4bd3218ac17f3e44442a3bb1aaff54dcca9a2bc"
+  },
+  {
+    "family": "openxml",
+    "repository": "dotnet/Open-XML-SDK",
+    "commit": "3139fdfd27414548a41555f7848d5728f6e71a42",
+    "path": "docs/dependency-licenses/upstream/openxml/NOTICE",
+    "url": "https://raw.githubusercontent.com/dotnet/Open-XML-SDK/3139fdfd27414548a41555f7848d5728f6e71a42/NOTICE",
+    "sha256": "b58ffb033b77dce71dc84018c86c33cc81bcb39336c75c057492e65cfe9e1c34"
+  },
+  {
+    "family": "microcom",
+    "repository": "kekekeks/MicroCom",
+    "commit": "76785efcafd91b5902fd19dd11145f6dd655b7b4",
+    "path": "docs/dependency-licenses/upstream/microcom/LICENSE",
+    "url": "https://raw.githubusercontent.com/kekekeks/MicroCom/76785efcafd91b5902fd19dd11145f6dd655b7b4/LICENSE",
+    "sha256": "6ee769c9ac4dac9abb16b98b1341e9528ff9f4ab685481410d3376d14148f3a9"
+  },
+  {
+    "family": "pdfpig",
+    "repository": "UglyToad/PdfPig",
+    "commit": "a7bb35662bbbf405efddad50aedc9bcdcf515afc",
+    "path": "docs/dependency-licenses/upstream/pdfpig/LICENSE",
+    "url": "https://raw.githubusercontent.com/UglyToad/PdfPig/a7bb35662bbbf405efddad50aedc9bcdcf515afc/LICENSE",
+    "sha256": "4c510e162f896ea43b4b1cf1b743641d7c756f1004d0e5eaf0615b28b7ded409"
+  },
+  {
+    "family": "system.io.packaging",
+    "repository": "dotnet/dotnet",
+    "commit": "44525024595742ebe09023abe709df51de65009b",
+    "path": "docs/dependency-licenses/upstream/system.io.packaging/LICENSE.TXT",
+    "url": "https://raw.githubusercontent.com/dotnet/dotnet/44525024595742ebe09023abe709df51de65009b/src/runtime/LICENSE.TXT",
+    "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+  },
+  {
+    "family": "tmds",
+    "repository": "tmds/Tmds.DBus",
+    "commit": "b4a7fed0b878f74cb54f7cca84d2889af4e596ba",
+    "path": "docs/dependency-licenses/upstream/tmds/COPYING",
+    "url": "https://raw.githubusercontent.com/tmds/Tmds.DBus/b4a7fed0b878f74cb54f7cca84d2889af4e596ba/COPYING",
+    "sha256": "aca3b49277abcc7886ccb2f115603a9f5b15fc3f96019a10c00f2974098b210c"
+  }
+]

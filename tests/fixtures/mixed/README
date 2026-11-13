@@ -1,0 +1,37 @@
+LocalDocSearch 原创混合格式测试样本
+
+本目录仅供测试。八个样本均为本项目生成的原创小型文档，无第三方文档或私有字体。
+按测试约定，两个查询词依次记作 A、B；本说明刻意不复述词面。
+每个样本恰有一个 A、一个 B，因此 AND 和 OR 查询均应命中 8 个文件、合计 16 处。
+每个样本还恰有一处字面量 .*；测试时应按普通字符串处理。
+本 README 没有扩展名，不属于八种扫描格式，也不计入搜索结果。
+
+文件与位置：
+- 中文示例.txt：UTF-8 无 BOM；恰好两行，A 在第 1 行，B 在第 2 行。
+- 中文示例.md：UTF-8 无 BOM；恰好两行，A 在第 1 行，B 在第 2 行。
+- 中文示例.log：UTF-8 无 BOM；恰好两行，A 在第 1 行，B 在第 2 行。
+- 跨行字段.csv：表头加两条逻辑数据记录；首条记录的备注是带引号的真实 CRLF 跨行字段，
+  首物理行是普通文字，下一物理行才出现 A；还含转义双引号和 ASCII 逗号。
+  第二条数据记录含 B。解析应保持逻辑字段和原始行位置，不能把换行当作新记录。
+- 正文与表格.docx：正文第 1 段的 A 被拆为相邻的两个 run；表格第 1 行第 1 格含 B。
+  标题和元数据均不重复查询词。正文后另有字面量段落。
+- 单元格定位.xlsx：Sheet1 是空白可见表，Sheet2 是第二张可见表；
+  Sheet2!B15 是共享字符串 A，Sheet2!D20 是 inline 字符串 B，Sheet2!D21 是字面量。
+  返回位置采用工作表名与 A1 单元格地址。第三张 HiddenSheet 隐藏，A1 是隐藏专用词，
+  不含两个主查询词；用于独立验证隐藏表过滤。未添加公式，公式缓存由适配器自动测试覆盖。
+- 八张幻灯片.pptx：恰好 8 页；第 1 页正文含 B，第 8 页正文把 A 拆为两个相邻文字 run。
+  第 4 页含字面量；其余页只含页序与普通原创文本。拥有有效母版、布局、主题及关系。
+- 三页文字.pdf：恰好 3 页；第 1 页含 B，第 3 页含 A，中间页是普通文字和字面量。
+  这是合法 PDF 1.7 结构，含页面树、内容流、按实际字节计算的 xref 和 trailer。
+  标准 Type0 STSong-Light 使用 UniGB-UCS2-H 与逐字符 ToUnicode CMap；
+  不打包 Windows 字体，不依赖 Office、COM、网络或字体下载。
+  PDF 阅读器使用其标准 CJK 字体支持渲染；生成器通过 PdfPig 逐页读回原文并检查词频。
+
+生成方式：
+先从项目根目录运行 ./scripts/dev.ps1 -Action Build -Locked，再执行：
+  ./.tools/dotnet/dotnet.exe run --project tools/LocalDocSearch.Fixtures/LocalDocSearch.Fixtures.csproj -c Release --no-build --no-restore -- tests/fixtures/mixed
+
+也可调用 LocalDocSearch.Fixtures.SampleDocuments.CreateAll(测试临时目录)。
+生成器只创建或覆盖八个固定命名样本，不写 README、字体、伴随文件或目录外文件。
+README 静态维护，搜索组件始终只读。不要把损坏文件或额外扫描格式文档放入此目录；
+异常样本由自动测试在临时目录中创建。重新生成会覆盖八个固定文件，请先另存手工编辑后的样本。

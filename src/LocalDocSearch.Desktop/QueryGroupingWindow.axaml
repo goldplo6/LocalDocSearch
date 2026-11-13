@@ -1,0 +1,355 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:LocalDocSearch.Desktop.Controls"
+        x:Class="LocalDocSearch.Desktop.QueryGroupingWindow" Title="高级搜索"
+        Width="860" Height="720" MinWidth="720" MinHeight="600" WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource DsSurfaceBrush}" Foreground="{DynamicResource DsTextBrush}"
+        AutomationProperties.AutomationId="QueryGroupingWindow" KeyDown="Window_OnKeyDown">
+  <Window.Resources>
+    <ControlTheme x:Key="AdvancedTabItemTheme" TargetType="TabItem">
+      <Setter Property="Foreground" Value="{DynamicResource DsMutedBrush}" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="MinHeight" Value="44" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Grid RowDefinitions="*,2">
+            <Border x:Name="HeaderSurface" Background="Transparent" BorderBrush="Transparent" BorderThickness="1" CornerRadius="4" Padding="0,9">
+              <ContentPresenter Name="PART_ContentPresenter" Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+            </Border>
+            <Border x:Name="TabUnderline" Grid.Row="1" Background="Transparent" CornerRadius="1" />
+          </Grid>
+        </ControlTemplate>
+      </Setter>
+      <Style Selector="^:pointerover">
+        <Setter Property="Foreground" Value="{DynamicResource DsAccentBrush}" />
+      </Style>
+      <Style Selector="^:selected">
+        <Setter Property="Foreground" Value="{DynamicResource DsAccentBrush}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+      </Style>
+      <Style Selector="^:selected /template/ Border#TabUnderline">
+        <Setter Property="Background" Value="{DynamicResource DsAccentBrush}" />
+      </Style>
+      <Style Selector="^:focus-visible /template/ Border#HeaderSurface">
+        <Setter Property="BorderBrush" Value="{DynamicResource DsAccentBrush}" />
+      </Style>
+    </ControlTheme>
+  </Window.Resources>
+  <Window.Styles>
+    <Style Selector="TabControl.advanced-tabs">
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Stretch" />
+      <Setter Property="ItemsPanel">
+        <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="25" /></ItemsPanelTemplate>
+      </Setter>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Grid RowDefinitions="Auto,*">
+            <Border BorderBrush="{DynamicResource DsBorderBrush}" BorderThickness="0,0,0,1">
+              <ItemsPresenter Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}" Margin="24,0" />
+            </Border>
+            <ContentPresenter Name="PART_SelectedContentHost" Grid.Row="1" Content="{TemplateBinding SelectedContent}"
+                              ContentTemplate="{TemplateBinding SelectedContentTemplate}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+          </Grid>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="Button.editor-tool">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="MinHeight" Value="30" />
+      <Setter Property="Padding" Value="8,4" />
+    </Style>
+    <Style Selector="Button.mode-segment">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="MinHeight" Value="28" />
+      <Setter Property="Padding" Value="12,4" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Foreground" Value="{DynamicResource DsMutedBrush}" />
+    </Style>
+    <Style Selector="Button.mode-segment.selected">
+      <Setter Property="Background" Value="{DynamicResource DsSurfaceBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource DsAccentBrush}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="ComboBox.editor-choice">
+      <Setter Property="MinHeight" Value="30" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Padding" Value="8,4" />
+      <Setter Property="Background" Value="{DynamicResource DsSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource DsBorderBrush}" />
+      <Setter Property="CornerRadius" Value="5" />
+    </Style>
+    <Style Selector="TextBox.editor-code">
+      <Setter Property="FontFamily" Value="Consolas, Cascadia Code, Microsoft YaHei UI, monospace" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Padding" Value="13,12" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Foreground" Value="#405878" />
+      <Setter Property="Background" Value="{DynamicResource DsSurfaceBrush}" />
+    </Style>
+    <Style Selector="Border.query-row">
+      <Setter Property="Background" Value="{DynamicResource DsSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource DsBorderBrush}" />
+      <Setter Property="BorderThickness" Value="1,0,0,0" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Padding" Value="8,5" />
+    </Style>
+    <Style Selector="Border.query-row.group">
+      <Setter Property="Background" Value="#F7F9FF" />
+      <Setter Property="BorderBrush" Value="#AEBFE9" />
+      <Setter Property="BorderThickness" Value="2,0,0,0" />
+    </Style>
+    <Style Selector="ListBoxItem">
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Padding" Value="0,2" />
+      <Setter Property="MinHeight" Value="36" />
+    </Style>
+    <Style Selector="Expander.editor-help">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="TextBlock.editor-note">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Foreground" Value="{DynamicResource DsMutedBrush}" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="Border.editor-cap">
+      <Setter Property="Background" Value="{DynamicResource DsSurfaceSoftBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource DsBorderBrush}" />
+      <Setter Property="BorderThickness" Value="0,0,0,1" />
+      <Setter Property="Padding" Value="12,7" />
+      <Setter Property="MinHeight" Value="31" />
+    </Style>
+    <Style Selector="Border.editor-help-card">
+      <Setter Property="BorderBrush" Value="{DynamicResource DsBorderBrush}" />
+      <Setter Property="BorderThickness" Value="1,0,0,0" />
+      <Setter Property="Padding" Value="16,0,0,0" />
+    </Style>
+  </Window.Styles>
+  <Grid RowDefinitions="Auto,*,Auto">
+    <Border Padding="24,20,24,10" AutomationProperties.AutomationId="AdvancedDialogHeader">
+      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+        <Border Width="35" Height="35" CornerRadius="9" Background="{DynamicResource DsAccentSoftBrush}" VerticalAlignment="Center">
+          <controls:BrandMark Width="25" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center"
+                              AutomationProperties.AutomationId="AdvancedDialogBrandMark" />
+        </Border>
+        <StackPanel Grid.Column="1" Spacing="3">
+          <TextBlock Text="高级搜索" FontSize="19" FontWeight="SemiBold" />
+          <TextBlock Text="让搜索条件，更准确地表达你的想法。" FontSize="12" Foreground="{DynamicResource DsMutedBrush}" />
+        </StackPanel>
+      </Grid>
+    </Border>
+    <TabControl x:Name="SearchTabs" Grid.Row="1" Classes="advanced-tabs" SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
+                Background="{DynamicResource DsSurfaceBrush}"
+                AutomationProperties.AutomationId="AdvancedSearchTabs" AutomationProperties.Name="高级搜索方式">
+      <TabItem Header="逻辑搜索" Theme="{StaticResource AdvancedTabItemTheme}" AutomationProperties.AutomationId="AdvancedLogicTab">
+        <TabItem.HeaderTemplate>
+          <DataTemplate>
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <Path Width="15" Height="15" Stretch="Uniform" StrokeThickness="1.6" StrokeLineCap="Round" StrokeJoin="Round" Data="M3,3 H9 V8 H3 Z M15,10 H21 V14 H15 Z M15,18 H21 V22 H15 Z M6,8 V20 H15 M6,12 H15"
+                        Stroke="{Binding $parent[TabItem].Foreground}" />
+              <TextBlock Text="{Binding}" Foreground="{Binding $parent[TabItem].Foreground}" VerticalAlignment="Center" />
+            </StackPanel>
+          </DataTemplate>
+        </TabItem.HeaderTemplate>
+        <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12" Margin="24,16,24,16">
+          <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="10" IsEnabled="{Binding IsEditable}">
+            <Border Background="{DynamicResource DsSurfaceSoftBrush}" CornerRadius="7" Padding="3">
+              <StackPanel Orientation="Horizontal" Spacing="3">
+                <Button Classes="mode-segment" Classes.selected="{Binding IsVisualEditor}" Content="可视化" Command="{Binding UseVisualEditorCommand}"
+                        AutomationProperties.AutomationId="QueryVisualMode" AutomationProperties.Name="可视化编辑" />
+                <Button Classes="mode-segment" Classes.selected="{Binding IsManualEditor}" Content="手写公式" Click="ManualMode_OnClick"
+                        AutomationProperties.AutomationId="QueryManualMode" AutomationProperties.Name="手写公式编辑" />
+              </StackPanel>
+            </Border>
+            <ComboBox x:Name="EditingMode" Grid.Column="1" Classes="editor-choice" ItemsSource="{Binding EditingModes}" SelectedIndex="{Binding EditingModeIndex, Mode=TwoWay}"
+                      Width="114" AutomationProperties.AutomationId="QueryEditingMode" AutomationProperties.Name="逻辑公式编辑方式" ToolTip.Tip="逻辑公式编辑方式" />
+            <TextBlock Grid.Column="2" Text="同一文件内判断 · AND 优先于 OR" Classes="editor-note" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" />
+          </Grid>
+          <Border Grid.Row="1" Background="#F7F9FF" BorderBrush="#E2E8F4" BorderThickness="1" CornerRadius="7" Padding="12,9">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+              <TextBlock Text="实际查询" FontSize="11" Foreground="{DynamicResource DsMutedBrush}" Margin="0,4,0,0" />
+              <TextBox x:Name="FormulaPreview" Grid.Column="1" Text="{Binding Formula, Mode=OneWay}" IsReadOnly="True"
+                       FontFamily="Consolas, Cascadia Code, Microsoft YaHei UI, monospace" FontSize="13" Foreground="#526B9D"
+                       Background="Transparent" BorderThickness="0" Padding="0,2" TextWrapping="Wrap" MaxHeight="48" MinHeight="24"
+                       AutomationProperties.AutomationId="QueryGroupFormulaPreview" AutomationProperties.Name="实际提交公式" />
+            </Grid>
+          </Border>
+          <Grid Grid.Row="2" ColumnDefinitions="*,176" ColumnSpacing="18">
+            <Grid RowDefinitions="Auto,*,Auto" RowSpacing="8" IsVisible="{Binding IsVisualEditor}">
+              <WrapPanel IsEnabled="{Binding IsEditable}">
+                <Button x:Name="GroupAndButton" Classes="quiet editor-tool" Content="AND 成组" Command="{Binding GroupAndCommand}" Margin="0,0,3,0" AutomationProperties.AutomationId="QueryGroupAnd" />
+                <Button x:Name="GroupOrButton" Classes="quiet editor-tool" Content="OR 成组" Command="{Binding GroupOrCommand}" Margin="0,0,3,0" AutomationProperties.AutomationId="QueryGroupOr" />
+                <Button x:Name="UngroupButton" Classes="quiet editor-tool" Content="取消括号" Command="{Binding UngroupCommand}" Margin="0,0,3,0" AutomationProperties.AutomationId="QueryUngroup" ToolTip.Tip="只选一个组；移除括号后，同层 AND 优先于 OR，实际变化见预览" />
+                <Button x:Name="DeleteButton" Classes="quiet editor-tool" Content="删除所选" Command="{Binding DeleteSelectedCommand}" Margin="0,0,3,0" AutomationProperties.AutomationId="QueryDeleteSelected" />
+                <Button x:Name="ClearSelectionButton" Classes="quiet editor-tool" Content="清除选择" Command="{Binding ClearSelectionCommand}" AutomationProperties.AutomationId="QueryClearSelection" />
+              </WrapPanel>
+              <ListBox x:Name="NodeRows" Grid.Row="1" ItemsSource="{Binding Rows}" BorderThickness="1" BorderBrush="{DynamicResource DsBorderBrush}"
+                       Background="{DynamicResource DsSurfaceSoftBrush}" CornerRadius="8" Padding="10" MinHeight="40"
+                       ScrollViewer.HorizontalScrollBarVisibility="Auto" AutomationProperties.AutomationId="QueryGroupNodeRows">
+                <ListBox.ItemsPanel><ItemsPanelTemplate><VirtualizingStackPanel /></ItemsPanelTemplate></ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                  <DataTemplate>
+                    <Border Classes="query-row" Classes.group="{Binding IsGroup}" Margin="{Binding Indent}" IsEnabled="{Binding $parent[Window].DataContext.IsEditable}">
+                      <Grid ColumnDefinitions="Auto,64,*" ColumnSpacing="8" MinHeight="30">
+                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" MinHeight="28" Width="22" Padding="0"
+                                  AutomationProperties.AutomationId="{Binding SelectionId}" AutomationProperties.Name="{Binding AccessibleName}" />
+                        <ComboBox Grid.Column="1" Classes="editor-choice" ItemsSource="{Binding $parent[Window].DataContext.OperatorChoices}" SelectedIndex="{Binding ConnectorIndex, Mode=TwoWay}"
+                                  IsVisible="{Binding HasConnector}" Width="64" MinHeight="28"
+                                  AutomationProperties.AutomationId="{Binding ConnectorId}" AutomationProperties.Name="{Binding ConnectorName}"
+                                  ToolTip.Tip="修改这一项前的同层 AND / OR" />
+                        <Grid Grid.Column="2" ColumnDefinitions="Auto,*" ColumnSpacing="7">
+                          <TextBlock Text="{Binding Kind}" Foreground="{DynamicResource DsMutedBrush}" FontSize="11" VerticalAlignment="Center" />
+                          <TextBlock Grid.Column="1" Text="{Binding Text}" TextWrapping="Wrap" MaxWidth="1100" VerticalAlignment="Center" />
+                        </Grid>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+              <Grid Grid.Row="2" RowDefinitions="Auto,Auto" RowSpacing="6" IsEnabled="{Binding IsEditable}">
+                <TextBox x:Name="LiteralInput" Text="{Binding PendingLiteral, Mode=TwoWay}" PlaceholderText="添加新的关键词…" MinHeight="34"
+                         AutomationProperties.AutomationId="QueryGroupLiteralInput" AutomationProperties.Name="新增字面量关键词" MinWidth="120" />
+                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="6">
+                  <ComboBox x:Name="NextConnector" Classes="editor-choice" ItemsSource="{Binding OperatorChoices}" SelectedIndex="{Binding NextConnectorIndex, Mode=TwoWay}"
+                            Width="78" AutomationProperties.AutomationId="QueryGroupNextConnector" AutomationProperties.Name="新增词的同层连接" />
+                  <Button x:Name="AddRootButton" Grid.Column="2" Classes="editor-tool" Content="添加到根层" Command="{Binding AddToRootCommand}" AutomationProperties.AutomationId="QueryAddToRoot" />
+                  <Button x:Name="AddGroupButton" Grid.Column="3" Classes="editor-tool" Content="添加到所选组" Command="{Binding AddToSelectedGroupCommand}" AutomationProperties.AutomationId="QueryAddToSelectedGroup" />
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid RowDefinitions="*,Auto,Auto" RowSpacing="7" IsVisible="{Binding IsManualEditor}">
+              <Border BorderBrush="{DynamicResource DsBorderBrush}" BorderThickness="1" CornerRadius="8" ClipToBounds="True">
+                <Grid RowDefinitions="Auto,*">
+                  <Border Classes="editor-cap" AutomationProperties.AutomationId="QueryLogicEditorCap">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Text="LOGICAL EXPRESSION" Classes="editor-note" FontFamily="Consolas, monospace" FontSize="10" />
+                      <TextBlock Grid.Column="1" Text="UTF-16" Classes="editor-note" FontFamily="Consolas, monospace" FontSize="10" />
+                    </Grid>
+                  </Border>
+                  <TextBox x:Name="ManualFormulaInput" Grid.Row="1" Classes="code-input editor-code" Text="{Binding ManualFormula, Mode=TwoWay}" AcceptsReturn="True" AcceptsTab="False"
+                           TextWrapping="Wrap" VerticalContentAlignment="Top" MinHeight="70" IsEnabled="{Binding IsEditable}" ToolTip.Tip="Enter 换行 · Tab 切换焦点"
+                           AutomationProperties.AutomationId="QueryManualFormula" AutomationProperties.Name="手写逻辑公式" />
+                </Grid>
+              </Border>
+              <ScrollViewer Grid.Row="1" MaxHeight="62" HorizontalScrollBarVisibility="Disabled">
+                <TextBlock Text="{Binding ManualError}" Foreground="{DynamicResource DsWarningBrush}" TextWrapping="Wrap" MinHeight="20" FontSize="12"
+                           AutomationProperties.AutomationId="QueryManualError" AutomationProperties.Name="{Binding ManualError}" />
+              </ScrollViewer>
+              <Button Grid.Row="2" Content="转到可视化" Classes="quiet editor-tool" Command="{Binding UseVisualEditorCommand}" IsEnabled="{Binding IsEditable}"
+                      HorizontalAlignment="Left" AutomationProperties.AutomationId="QueryUseVisualEditor" />
+            </Grid>
+            <Border Grid.Column="1" Classes="editor-help-card">
+              <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="10">
+                  <TextBlock Text="更自然地组织条件" FontWeight="SemiBold" FontSize="12" TextWrapping="Wrap" />
+                  <TextBlock Text="勾选相邻条件，用 AND / OR 连接。括号中的条件优先判断。" Classes="editor-note" />
+                  <StackPanel Spacing="4" IsVisible="{Binding IsVisualEditor}">
+                    <TextBlock Text="{Binding CountText}" Classes="editor-note" />
+                    <TextBlock Text="{Binding SelectionText}" Classes="editor-note" AutomationProperties.AutomationId="QueryGroupSelectionCount" />
+                  </StackPanel>
+                  <TextBlock Text="试试这些公式" FontWeight="SemiBold" FontSize="12" />
+                  <Border Background="{DynamicResource DsSurfaceSoftBrush}" CornerRadius="5" Padding="9,7">
+                    <TextBlock Text="产品方案 AND&#10;(交付计划 OR 验收报告)" Classes="editor-note" FontFamily="Consolas, Microsoft YaHei UI, monospace" FontSize="11" />
+                  </Border>
+                  <Expander x:Name="LogicHelp" Classes="editor-help" Header="语法与操作说明" IsExpanded="False" AutomationProperties.AutomationId="QueryLogicHelp">
+                    <ScrollViewer MaxHeight="180" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                      <StackPanel Spacing="9" Margin="0,8,0,0">
+                        <TextBlock Text="新增内容始终按字面量搜索，可保留重复词。单选一个组可继续嵌套、添加组内词或取消括号。" Classes="editor-note" />
+                        <TextBlock Text="取消括号后，同层 AND 优先于 OR；请核对实际查询。父组和组内项分开选择。" Classes="editor-note" />
+                        <TextBlock Text="手写支持 AND / OR（不分大小写）及括号。包含空格、运算词或括号的文字，用双引号括起。" Classes="editor-note" />
+                        <TextBlock Text="支持转义：\&quot;、\\、\n、\r、\t、\uXXXX。Enter 换行；Tab 移动焦点。语法错误时先修正，再应用。" Classes="editor-note" />
+                      </StackPanel>
+                    </ScrollViewer>
+                  </Expander>
+                </StackPanel>
+              </ScrollViewer>
+            </Border>
+          </Grid>
+        </Grid>
+      </TabItem>
+      <TabItem Header="正则匹配" Theme="{StaticResource AdvancedTabItemTheme}" AutomationProperties.AutomationId="AdvancedRegexTab">
+        <TabItem.HeaderTemplate>
+          <DataTemplate>
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <Path Width="15" Height="15" Stretch="Uniform" StrokeThickness="1.6" StrokeLineCap="Round" StrokeJoin="Round" Data="M7,6 L2,12 7,18 M17,6 L22,12 17,18 M14,4 L10,20"
+                        Stroke="{Binding $parent[TabItem].Foreground}" />
+              <TextBlock Text="{Binding}" Foreground="{Binding $parent[TabItem].Foreground}" VerticalAlignment="Center" />
+            </StackPanel>
+          </DataTemplate>
+        </TabItem.HeaderTemplate>
+        <Grid ColumnDefinitions="*,176" ColumnSpacing="18" Margin="24,16,24,16">
+          <Grid RowDefinitions="Auto,*,Auto" RowSpacing="10">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="正则表达式" FontSize="13" FontWeight="SemiBold" />
+              <Border Grid.Column="1" Background="{DynamicResource DsAccentSoftBrush}" CornerRadius="4" Padding="7,3">
+                <TextBlock Text="独立匹配模式" FontSize="11" Foreground="{DynamicResource DsAccentBrush}" />
+              </Border>
+            </Grid>
+            <Border Grid.Row="1" BorderBrush="{DynamicResource DsBorderBrush}" BorderThickness="1" CornerRadius="8" ClipToBounds="True">
+              <Grid RowDefinitions="Auto,*">
+                <Border Classes="editor-cap" AutomationProperties.AutomationId="QueryRegexEditorCap">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="REGULAR EXPRESSION" Classes="editor-note" FontFamily="Consolas, monospace" FontSize="10" />
+                    <TextBlock Grid.Column="1" Text=".NET / pattern" Classes="editor-note" FontFamily="Consolas, monospace" FontSize="10" />
+                  </Grid>
+                </Border>
+                <TextBox x:Name="RegexPatternInput" Grid.Row="1" Classes="code-input editor-code" Text="{Binding RegexPattern, Mode=TwoWay}" AcceptsReturn="True" AcceptsTab="False"
+                         PlaceholderText="例如：PRJ-\d{4}" TextWrapping="Wrap" VerticalContentAlignment="Top" MinHeight="100" IsEnabled="{Binding IsEditable}" ToolTip.Tip="Enter 是 pattern 换行 · Tab 切换焦点"
+                         AutomationProperties.AutomationId="QueryRegexPattern" AutomationProperties.Name="正则表达式 pattern" />
+              </Grid>
+            </Border>
+            <ScrollViewer Grid.Row="2" MaxHeight="76" HorizontalScrollBarVisibility="Disabled">
+              <TextBlock Text="{Binding RegexError}" Foreground="{DynamicResource DsWarningBrush}" TextWrapping="Wrap" MinHeight="20" FontSize="12"
+                         AutomationProperties.AutomationId="QueryRegexError" AutomationProperties.Name="{Binding RegexError}" />
+            </ScrollViewer>
+          </Grid>
+          <Border Grid.Column="1" Classes="editor-help-card">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+              <StackPanel Spacing="10">
+                <TextBlock Text="常用表达式" FontWeight="SemiBold" FontSize="12" />
+                <Border Background="{DynamicResource DsSurfaceSoftBrush}" CornerRadius="5" Padding="9,7">
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="PRJ-\d{4}" FontFamily="Consolas, monospace" FontSize="12" Foreground="#526B9D" />
+                    <TextBlock Text="查找项目编号" Classes="editor-note" FontSize="11" />
+                  </StackPanel>
+                </Border>
+                <TextBlock Text="使用 .NET 正则语法，沿用主窗口的“区分大小写”。" Classes="editor-note" />
+                <Expander x:Name="RegexHelp" Classes="editor-help" Header="匹配与资源说明" IsExpanded="False" AutomationProperties.AutomationId="QueryRegexHelp">
+                  <ScrollViewer MaxHeight="220" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="9" Margin="0,8,0,0">
+                      <TextBlock Text="默认每次匹配 100ms、每文件 1000ms；零长度匹配跳过。" Classes="editor-note" />
+                      <TextBlock Text="按提取片段匹配，独立段、页、单元格之间不拼接。" Classes="editor-note" />
+                      <TextBlock Text="命中及原文件查找使用实际匹配文字。完整命中超过 24000 字符时，文字预览会提示长度限制。" Classes="editor-note" />
+                      <TextBlock Text="正则独立于逻辑公式。应用后主窗口切换为正则模式；切回逻辑搜索并应用即可恢复文字方式。" Classes="editor-note" />
+                    </StackPanel>
+                  </ScrollViewer>
+                </Expander>
+              </StackPanel>
+            </ScrollViewer>
+          </Border>
+        </Grid>
+      </TabItem>
+    </TabControl>
+    <Border Grid.Row="2" Background="#FCFDFF" BorderBrush="{DynamicResource DsBorderBrush}" BorderThickness="0,1,0,0" Padding="24,12"
+            AutomationProperties.AutomationId="QueryGroupFooter">
+      <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="14" RowSpacing="3">
+        <ScrollViewer MaxHeight="36" HorizontalScrollBarVisibility="Disabled">
+          <TextBlock Text="{Binding Message}" TextWrapping="Wrap" MinHeight="18" FontSize="11" Foreground="{DynamicResource DsMutedBrush}"
+                     AutomationProperties.AutomationId="QueryGroupMessage" />
+        </ScrollViewer>
+        <TextBlock Grid.Row="1" Text="只在点击“应用条件”后更新主查询" Classes="editor-note" FontSize="11" VerticalAlignment="Center" />
+        <StackPanel Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <Button x:Name="CancelButton" Content="取消" Click="Cancel_OnClick" MinWidth="78" MinHeight="34" AutomationProperties.AutomationId="QueryGroupCancel" />
+          <Button x:Name="ApplyButton" Classes="primary" Content="应用条件" Click="Apply_OnClick" IsEnabled="{Binding CanApply}" MinWidth="108" MinHeight="34" AutomationProperties.AutomationId="QueryGroupApply" />
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

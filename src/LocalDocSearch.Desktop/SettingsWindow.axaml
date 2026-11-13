@@ -1,0 +1,42 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="LocalDocSearch.Desktop.SettingsWindow" Title="搜索设置" Width="700" Height="700" MinWidth="580" MinHeight="500" WindowStartupLocation="CenterOwner">
+  <Grid Margin="20" RowDefinitions="*,Auto" RowSpacing="12">
+    <ScrollViewer>
+      <StackPanel Spacing="12">
+        <TextBlock Text="搜索设置" FontSize="22" FontWeight="SemiBold" />
+        <TextBlock Text="保存后用于下一次搜索；当前结果保留本次查询的位置与上下文。设置仅存本机，不保存关键词、正文或结果。" TextWrapping="Wrap" />
+        <TextBlock Text="文本与 CSV 编码" FontWeight="SemiBold" />
+        <ComboBox ItemsSource="{Binding EncodingNames}" SelectedIndex="{Binding EncodingIndex, Mode=TwoWay}" HorizontalAlignment="Stretch" AutomationProperties.Name="文本编码模式" />
+        <TextBlock Text="BOM 始终优先。无 BOM 的默认模式严格读取 UTF-8；兼容模式在 UTF-8 校验失败后尝试 GB18030。强制模式用于明确知道原始编码的文件。软件只读取，不改写原文件，也不猜测已丢失的文字。" TextWrapping="Wrap" Classes="caption" />
+        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+          <TextBlock Text="每侧上下文字符数" VerticalAlignment="Center" />
+          <NumericUpDown Grid.Column="1" Value="{Binding ContextCharacters, Mode=TwoWay}" Minimum="0" Maximum="500" Increment="10" FormatString="0" AutomationProperties.Name="上下文字符数" />
+          <TextBlock Grid.Column="2" Text="0–500" VerticalAlignment="Center" />
+        </Grid>
+        <TextBlock Text="结果排序（搜索结束后应用）" FontWeight="SemiBold" />
+        <ComboBox ItemsSource="{Binding SortNames}" SelectedIndex="{Binding SortMode, Mode=TwoWay}" HorizontalAlignment="Stretch" AutomationProperties.Name="结果排序" />
+        <TextBlock Text="按格式选择搜索范围" FontWeight="SemiBold" />
+        <WrapPanel>
+          <CheckBox Content="Word 正文" IsChecked="{Binding WordBody}" Margin="0,0,16,0" />
+          <CheckBox Content="Word 表格" IsChecked="{Binding WordTables}" Margin="0,0,16,0" />
+          <CheckBox Content="Excel 隐藏/深度隐藏表" IsChecked="{Binding ExcelHiddenSheets}" />
+        </WrapPanel>
+        <WrapPanel>
+          <CheckBox Content="PPT 文本框" IsChecked="{Binding PresentationText}" Margin="0,0,16,0" />
+          <CheckBox Content="PPT 表格" IsChecked="{Binding PresentationTables}" />
+        </WrapPanel>
+        <CheckBox Content="Word 页眉页脚、批注、文本框（尚未支持）" IsEnabled="False" />
+        <CheckBox Content="PPT 备注、组合图形、母版（尚未支持）" IsEnabled="False" />
+        <CheckBox Content="PDF 扫描图片 OCR（尚未支持）" IsEnabled="False" />
+        <TextBlock Text="Excel 使用存储值/公式缓存，不重新计算，也不按单元格显示格式搜索。PDF 按可提取文字搜索。" TextWrapping="Wrap" Classes="caption" />
+        <TextBlock Text="打开与定位" FontWeight="SemiBold" />
+        <CheckBox Content="允许打开匹配时启动 Office 自动定位（需安装 Office）" IsChecked="{Binding AllowOfficeAutomation}" />
+        <TextBlock Text="默认关闭。开启后仅在你请求打开匹配时调用；Excel 选区核实后为 Exact，PPT 幻灯片核实后为 Section。其余按真实能力回退为 OpenedOnly；错误为 Failed。自动化新开文档使用只读保护视图；已打开的文档保留原状态。默认程序打开遵循该应用的设置。" TextWrapping="Wrap" Classes="caption" />
+      </StackPanel>
+    </ScrollViewer>
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+      <Button Content="取消" Click="Cancel_OnClick" />
+      <Button Content="保存设置" Click="Save_OnClick" />
+    </StackPanel>
+  </Grid>
+</Window>

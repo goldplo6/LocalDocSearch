@@ -1,0 +1,15 @@
+* text=auto eol=lf
+
+# Preserve JSON lockfiles, manifests, fixtures and recorded license evidence bytes.
+*.json -text
+/tests/fixtures/** -text
+/docs/dependency-licenses/** -text
+
+*.ico binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.docx binary
+*.xlsx binary
+*.pptx binary

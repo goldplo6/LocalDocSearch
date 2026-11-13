@@ -1,0 +1,487 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="using:LocalDocSearch.Desktop.Controls" x:Class="LocalDocSearch.Desktop.MainWindow" Title="LocalDocSearch · 本地文档搜索" Background="{DynamicResource DsBackgroundBrush}" Width="1140" Height="820" MinWidth="850" MinHeight="640">
+  <Window.Resources>
+    <!-- Keep string Content for the established keyboard and automation contracts. -->
+    <DataTemplate x:Key="SearchActionTemplate">
+      <StackPanel Orientation="Horizontal" Spacing="7">
+        <Path Data="M10,3 A7,7 0 1 0 10,17 A7,7 0 1 0 10,3 M15,15 L21,21" Stroke="White" StrokeThickness="1.7" Width="17" Height="17" Stretch="Uniform" VerticalAlignment="Center" />
+        <TextBlock Text="{Binding}" VerticalAlignment="Center" />
+      </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="PreviewActionTemplate">
+      <StackPanel Orientation="Horizontal" Spacing="4">
+        <Path Data="M2,12 C7,3 17,3 22,12 C17,21 7,21 2,12 Z M15,12 A3,3 0 1 0 9,12 A3,3 0 1 0 15,12" Stroke="{DynamicResource DsMutedBrush}" StrokeThickness="1.6" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" />
+        <TextBlock Text="预览" FontSize="11" VerticalAlignment="Center" />
+      </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="FolderActionTemplate">
+      <StackPanel Orientation="Horizontal" Spacing="5">
+        <Path Data="M3,7 L3,4 L9,4 L12,7 L21,7 L21,20 L3,20 Z M3,8 L10,8" Stroke="{DynamicResource DsMutedBrush}" StrokeThickness="1.6" Width="15" Height="15" Stretch="Uniform" VerticalAlignment="Center" />
+        <TextBlock Text="{Binding}" VerticalAlignment="Center" />
+      </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="AdvancedActionTemplate">
+      <StackPanel Orientation="Horizontal" Spacing="5">
+        <Path Data="M3,5 L7,5 M11,5 L21,5 M3,12 L13,12 M17,12 L21,12 M3,19 L5,19 M9,19 L21,19 M7,3 L11,3 L11,7 L7,7 Z M13,10 L17,10 L17,14 L13,14 Z M5,17 L9,17 L9,21 L5,21 Z" Stroke="{DynamicResource DsAccentBrush}" StrokeThickness="1.4" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" />
+        <TextBlock Text="{Binding}" Foreground="{DynamicResource DsAccentBrush}" FontSize="12" VerticalAlignment="Center" />
+        <Path Data="M2,1 L6,5 L2,9" Stroke="{DynamicResource DsAccentBrush}" StrokeThickness="1.4" Width="6" Height="9" VerticalAlignment="Center" />
+      </StackPanel>
+    </DataTemplate>
+    <ControlTheme x:Key="ResultChevronTheme" TargetType="ToggleButton">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border x:Name="ChevronSurface" Background="{TemplateBinding Background}" CornerRadius="4">
+            <Path x:Name="Chevron" Data="M4,2 L9,7 L4,12" Stroke="{DynamicResource DsMutedBrush}" StrokeThickness="1.5" Width="8" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+      <Style Selector="^:checked /template/ Path#Chevron">
+        <Setter Property="Data" Value="M1,4 L6,9 L11,4" />
+        <Setter Property="Width" Value="12" />
+        <Setter Property="Height" Value="8" />
+      </Style>
+      <Style Selector="^:pointerover /template/ Border#ChevronSurface">
+        <Setter Property="Background" Value="{DynamicResource DsAccentSoftBrush}" />
+      </Style>
+      <Style Selector="^:focus-visible /template/ Border#ChevronSurface">
+        <Setter Property="BorderBrush" Value="{DynamicResource DsAccentBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+      </Style>
+    </ControlTheme>
+    <!-- A real Expander with one independent chevron, without Fluent's framed header. -->
+    <ControlTheme x:Key="ResultExpanderTheme" TargetType="Expander">
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Background="Transparent" BorderBrush="{DynamicResource DsBorderBrush}" BorderThickness="0,0,0,1">
+            <Grid RowDefinitions="Auto,Auto">
+              <Grid ColumnDefinitions="30,*">
+                <ToggleButton x:Name="PART_HeaderToggle" Theme="{StaticResource ResultChevronTheme}" IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" Width="20" Height="28" Margin="6,10,0,0" MinWidth="0" MinHeight="0" VerticalAlignment="Top" AutomationProperties.Name="展开或收起文件匹配" />
+                <ContentPresenter Grid.Column="1" Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" HorizontalContentAlignment="Stretch" />
+              </Grid>
+              <ContentPresenter x:Name="PART_ContentPresenter" Grid.Row="1" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" IsVisible="{TemplateBinding IsExpanded}" HorizontalContentAlignment="Stretch" />
+            </Grid>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </ControlTheme>
+  </Window.Resources>
+  <Window.Styles>
+    <Style Selector="Border#BrandHeader">
+      <Setter Property="Height" Value="52" />
+      <Setter Property="Padding" Value="24,0" />
+    </Style>
+    <Style Selector="Grid#Workspace">
+      <Setter Property="Margin" Value="20,10,20,4" />
+      <Setter Property="RowSpacing" Value="8" />
+    </Style>
+    <Style Selector="Border#SearchCard">
+      <Setter Property="Padding" Value="14,5" />
+    </Style>
+    <Style Selector="Grid#SearchForm">
+      <Setter Property="RowSpacing" Value="2" />
+    </Style>
+    <Style Selector="Grid.search-scope">
+      <Setter Property="Height" Value="26" />
+    </Style>
+    <Style Selector="Grid.search-input">
+      <Setter Property="Height" Value="34" />
+    </Style>
+    <Style Selector="Grid.search-chips">
+      <Setter Property="Height" Value="26" />
+    </Style>
+    <Style Selector="Grid.query-formula">
+      <Setter Property="Height" Value="16" />
+    </Style>
+    <Style Selector="Grid#ResultsSection">
+      <Setter Property="RowSpacing" Value="4" />
+    </Style>
+    <Style Selector="Grid#ResultsToolbar">
+      <Setter Property="Height" Value="24" />
+    </Style>
+    <Style Selector="Grid#StatusFooter">
+      <Setter Property="Height" Value="24" />
+    </Style>
+    <Style Selector="Window.compact Border#BrandHeader">
+      <Setter Property="Height" Value="36" />
+      <Setter Property="Padding" Value="12,0" />
+    </Style>
+    <Style Selector="Window.compact Grid#Workspace">
+      <Setter Property="Margin" Value="10,4,10,2" />
+      <Setter Property="RowSpacing" Value="3" />
+    </Style>
+    <Style Selector="Window.compact Border#SearchCard">
+      <Setter Property="Padding" Value="10,2" />
+    </Style>
+    <Style Selector="Window.compact Grid#SearchForm">
+      <Setter Property="RowSpacing" Value="1" />
+    </Style>
+    <Style Selector="Window.compact Grid.search-scope">
+      <Setter Property="Height" Value="22" />
+    </Style>
+    <Style Selector="Window.compact Grid.search-input">
+      <Setter Property="Height" Value="28" />
+    </Style>
+    <Style Selector="Window.compact Grid.search-chips">
+      <Setter Property="Height" Value="24" />
+    </Style>
+    <Style Selector="Window.compact Grid.query-formula">
+      <Setter Property="Height" Value="14" />
+    </Style>
+    <Style Selector="Window.compact Grid#ResultsToolbar">
+      <Setter Property="Height" Value="22" />
+    </Style>
+    <Style Selector="Window.compact Grid#ResultsSection">
+      <Setter Property="RowSpacing" Value="3" />
+    </Style>
+    <Style Selector="Border.file-type">
+      <Setter Property="Background" Value="{DynamicResource DsSurfaceSoftBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource DsBorderBrush}" />
+    </Style>
+    <Style Selector="Border.file-type TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource DsMutedBrush}" />
+    </Style>
+    <Style Selector="Border.file-type Path">
+      <Setter Property="Stroke" Value="{DynamicResource DsMutedBrush}" />
+    </Style>
+    <Style Selector="Border.file-type.pdf">
+      <Setter Property="Background" Value="#FFF6F4" />
+      <Setter Property="BorderBrush" Value="#F1DCD7" />
+    </Style>
+    <Style Selector="Border.file-type.pdf TextBlock">
+      <Setter Property="Foreground" Value="#C77972" />
+    </Style>
+    <Style Selector="Border.file-type.pdf Path">
+      <Setter Property="Stroke" Value="#C77972" />
+    </Style>
+    <Style Selector="Border.file-type.word">
+      <Setter Property="Background" Value="#F2F6FD" />
+      <Setter Property="BorderBrush" Value="#DCE6F5" />
+    </Style>
+    <Style Selector="Border.file-type.word TextBlock">
+      <Setter Property="Foreground" Value="#5E80B4" />
+    </Style>
+    <Style Selector="Border.file-type.word Path">
+      <Setter Property="Stroke" Value="#5E80B4" />
+    </Style>
+    <Style Selector="Border.file-type.sheet">
+      <Setter Property="Background" Value="#F1F8F3" />
+      <Setter Property="BorderBrush" Value="#D8E9DF" />
+    </Style>
+    <Style Selector="Border.file-type.sheet TextBlock">
+      <Setter Property="Foreground" Value="#6A9880" />
+    </Style>
+    <Style Selector="Border.file-type.sheet Path">
+      <Setter Property="Stroke" Value="#6A9880" />
+    </Style>
+    <Style Selector="Border.file-type.slides">
+      <Setter Property="Background" Value="#FCF7F1" />
+      <Setter Property="BorderBrush" Value="#EDDFD0" />
+    </Style>
+    <Style Selector="Border.file-type.slides TextBlock">
+      <Setter Property="Foreground" Value="#B48E67" />
+    </Style>
+    <Style Selector="Border.file-type.slides Path">
+      <Setter Property="Stroke" Value="#B48E67" />
+    </Style>
+    <Style Selector="Border.file-type.markdown">
+      <Setter Property="Background" Value="#F7F5FA" />
+      <Setter Property="BorderBrush" Value="#E5E0ED" />
+    </Style>
+    <Style Selector="Border.file-type.markdown TextBlock">
+      <Setter Property="Foreground" Value="#8C84A3" />
+    </Style>
+    <Style Selector="Border.file-type.markdown Path">
+      <Setter Property="Stroke" Value="#8C84A3" />
+    </Style>
+  </Window.Styles>
+  <Grid RowDefinitions="Auto,*">
+    <Border x:Name="BrandHeader" Background="{DynamicResource DsSurfaceBrush}" BorderBrush="{DynamicResource DsBorderBrush}" BorderThickness="0,0,0,1" AutomationProperties.AutomationId="BrandHeader">
+      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+          <controls:BrandMark Width="32" Height="32" />
+          <TextBlock Text="LocalDocSearch" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center" />
+          <Border Width="1" Height="16" Background="{DynamicResource DsBorderBrush}" Margin="8,0,2,0" />
+          <TextBlock Text="离线文档搜索" Classes="caption" FontSize="11" VerticalAlignment="Center" />
+        </StackPanel>
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
+          <Border Background="{DynamicResource DsSurfaceSoftBrush}" CornerRadius="5" Padding="8,4" Margin="0,0,5,0">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <Path Data="M5,10 L5,6 A4,4 0 0 1 13,6 L13,10 M3,10 L15,10 L15,20 L3,20 Z" Stroke="#70827E" StrokeThickness="1.5" Width="11" Height="13" Stretch="Uniform" VerticalAlignment="Center" />
+              <TextBlock Text="离线 · 只读" Foreground="#70827E" FontSize="10" />
+            </StackPanel>
+          </Border>
+          <Button Content="?" Classes="quiet icon" Width="28" Height="28" MinWidth="0" MinHeight="0" Padding="0" AutomationProperties.Name="说明与诊断" ToolTip.Tip="说明、资源限制与诊断">
+            <Button.ContentTemplate>
+              <DataTemplate>
+                <Path Data="M12,3 A9,9 0 1 0 12,21 A9,9 0 1 0 12,3 M9,9 A3,3 0 0 1 15,9 C15,11 12,11 12,14 M12,17 L12,18" Stroke="{DynamicResource DsMutedBrush}" StrokeThickness="1.6" Width="18" Height="18" Stretch="Uniform" />
+              </DataTemplate>
+            </Button.ContentTemplate>
+            <Button.Flyout>
+              <Flyout>
+                <ScrollViewer MaxHeight="440" Width="490">
+                  <StackPanel Spacing="10">
+                    <TextBlock Text="搜索说明" Classes="section-title" />
+                    <TextBlock Text="字面量匹配；AND 优先于 OR，以下方括号公式为准。下一连接用于新词；普通模式可点击词条间连接，括号模式请用“高级搜索…”编辑连接和嵌套组。独立段落、单元格或页面之间不拼词，源文件只读。" TextWrapping="Wrap" />
+                    <TextBlock Text="定位并选中：重新核对来源片段，在只读文字预览中选中本次命中；PDF 预览显示提取文字及真实页码，不还原原页面版式。原程序定位会单独报告实际能力，Office 自动化需在设置中开启。" TextWrapping="Wrap" />
+                    <TextBlock Text="Word 页眉页脚/批注/文本框、PPT 备注/组合图形未搜索；Excel 使用存储值/公式缓存，不重算或还原显示格式；PDF 无 OCR。" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding SettingsSummary}" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding SettingsWarning}" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding ResourcePolicySummary}" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding DiagnosticsText}" AutomationProperties.AutomationId="SearchDiagnosticsText" TextWrapping="Wrap" />
+                    <Button Content="复制诊断摘要" IsEnabled="{Binding HasDiagnostics}" Click="CopyDiagnostics_OnClick" />
+                    <Button Content="验证：加载一万条模拟结果" Command="{Binding LoadDemoCommand}" IsEnabled="{Binding IsIdle}" />
+                  </StackPanel>
+                </ScrollViewer>
+              </Flyout>
+            </Button.Flyout>
+          </Button>
+          <Button Content="搜索设置…" Classes="quiet icon" Width="28" Height="28" MinWidth="0" MinHeight="0" Padding="0" Click="Settings_OnClick" IsEnabled="{Binding IsIdle}" AutomationProperties.Name="搜索设置" ToolTip.Tip="搜索设置">
+            <Button.ContentTemplate>
+              <DataTemplate>
+                <Path Data="M3,5 L8,5 M12,5 L21,5 M3,12 L13,12 M17,12 L21,12 M3,19 L5,19 M9,19 L21,19 M8,3 L12,3 L12,7 L8,7 Z M13,10 L17,10 L17,14 L13,14 Z M5,17 L9,17 L9,21 L5,21 Z" Stroke="{DynamicResource DsMutedBrush}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" />
+              </DataTemplate>
+            </Button.ContentTemplate>
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+    <Grid x:Name="Workspace" Grid.Row="1" RowDefinitions="Auto,*,Auto">
+      <Border x:Name="SearchCard" Background="{DynamicResource DsSurfaceBrush}" BorderBrush="{DynamicResource DsBorderBrush}" BorderThickness="1" CornerRadius="10" AutomationProperties.Name="搜索条件" AutomationProperties.AutomationId="SearchConditionsCard">
+        <Grid x:Name="SearchForm" RowDefinitions="Auto,Auto,Auto,Auto">
+          <Grid Classes="search-scope" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8" IsEnabled="{Binding IsIdle}">
+            <TextBlock Text="搜索范围" Classes="caption" FontSize="11" VerticalAlignment="Center" />
+            <Grid Grid.Column="1" ColumnDefinitions="18,*" ColumnSpacing="5">
+              <Path Data="M3,7 L3,4 L9,4 L12,7 L21,7 L21,20 L3,20 Z" Stroke="{DynamicResource DsMutedBrush}" StrokeThickness="1.5" Width="16" Height="16" Stretch="Uniform" VerticalAlignment="Center" />
+              <TextBox Grid.Column="1" Text="{Binding RootFolder, Mode=TwoWay}" MinHeight="0" Padding="4,2" BorderThickness="0" Background="Transparent" FontSize="12" PlaceholderText="选择文件夹" AutomationProperties.Name="搜索根目录" />
+            </Grid>
+            <Button Grid.Column="2" Content="选择目录" ContentTemplate="{StaticResource FolderActionTemplate}" Classes="quiet" Click="BrowseFolder_OnClick" MinHeight="0" Padding="8,2" FontSize="12" />
+            <Button Grid.Column="3" Content="格式与大小写" Classes="quiet" MinHeight="0" Padding="8,2" FontSize="12">
+              <Button.Flyout>
+                <Flyout>
+                  <StackPanel Spacing="8" Width="260">
+                    <TextBlock Text="搜索格式" Classes="section-title" />
+                    <WrapPanel>
+                      <CheckBox Content="TXT" IsChecked="{Binding IncludeTxt}" Margin="0,0,12,0" />
+                      <CheckBox Content="MD" IsChecked="{Binding IncludeMd}" Margin="0,0,12,0" />
+                      <CheckBox Content="LOG" IsChecked="{Binding IncludeLog}" Margin="0,0,12,0" />
+                      <CheckBox Content="CSV" IsChecked="{Binding IncludeCsv}" />
+                      <CheckBox Content="Word (.docx)" IsChecked="{Binding IncludeDocx}" Margin="0,0,12,0" />
+                      <CheckBox Content="Excel (.xlsx)" IsChecked="{Binding IncludeXlsx}" />
+                      <CheckBox Content="PPT (.pptx)" IsChecked="{Binding IncludePptx}" Margin="0,0,12,0" />
+                      <CheckBox Content="PDF" IsChecked="{Binding IncludePdf}" />
+                    </WrapPanel>
+                    <CheckBox Content="区分大小写" IsChecked="{Binding MatchCase}" />
+                  </StackPanel>
+                </Flyout>
+              </Button.Flyout>
+            </Button>
+          </Grid>
+          <Grid Grid.Row="1" Classes="search-input" ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="8">
+            <Grid ColumnDefinitions="28,*">
+              <Border Background="{DynamicResource DsSurfaceBrush}" BorderBrush="{DynamicResource DsBorderBrush}" BorderThickness="1" CornerRadius="7,0,0,7">
+                <Path Data="M10,3 A7,7 0 1 0 10,17 A7,7 0 1 0 10,3 M15,15 L21,21" Stroke="{DynamicResource DsMutedBrush}" StrokeThickness="1.6" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <TextBox x:Name="KeywordBox" Grid.Column="1" Text="{Binding PendingTerm, Mode=TwoWay}" MinHeight="0" Padding="6,4" CornerRadius="0,7,7,0" BorderThickness="0,1,1,1" PlaceholderText="{Binding PendingTermHint}" ToolTip.Tip="{Binding QueryFormula}" KeyDown="Keyword_OnKeyDown" AutomationProperties.Name="待添加关键词" IsEnabled="{Binding IsLiteralInputEnabled}" />
+            </Grid>
+            <Button Grid.Column="1" Content="添加" Classes="quiet" Command="{Binding AddTermCommand}" IsEnabled="{Binding IsLiteralInputEnabled}" MinHeight="0" Padding="10,3" FontSize="12" />
+            <Button Grid.Column="2" Content="开始搜索" ContentTemplate="{StaticResource SearchActionTemplate}" Classes="primary" Command="{Binding StartSearchCommand}" IsEnabled="{Binding IsIdle}" MinHeight="0" Padding="14,3" FontSize="12" />
+            <Button Grid.Column="3" Content="{Binding PauseResumeSearchText}" Classes="quiet" Command="{Binding PauseResumeSearchCommand}" MinHeight="0" Padding="8,3" FontSize="12" AutomationProperties.AutomationId="PauseResumeSearch" AutomationProperties.Name="{Binding PauseResumeSearchText}" ToolTip.Tip="协作式暂停/继续：等待当前提取检查点；继续沿用本次查询" />
+            <Button Grid.Column="4" Content="停止" Classes="quiet" Command="{Binding StopSearchCommand}" MinHeight="0" Padding="8,3" FontSize="12" AutomationProperties.AutomationId="StopSearch" AutomationProperties.Name="停止搜索" ToolTip.Tip="停止本轮搜索：等待当前提取检查点，保留已展示的完整文件结果" />
+          </Grid>
+          <Grid Grid.Row="2" Classes="search-chips" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+            <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" ToolTip.Tip="{Binding QueryChipHint}">
+              <ItemsControl ItemsSource="{Binding QueryChips}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,6,0" ToolTip.Tip="{Binding EditHint}">
+                      <Button Content="{Binding Connector}" Classes="quiet" IsVisible="{Binding HasConnector}" Command="{Binding $parent[Window].DataContext.ToggleTermConnectorCommand}" CommandParameter="{Binding Term}" ToolTip.Tip="切换此处 AND/OR；下方公式显示实际优先级" IsEnabled="{Binding $parent[Window].DataContext.IsChipEditingEnabled}" MinHeight="0" Height="24" Padding="5,0" FontSize="10" AutomationProperties.AutomationId="QueryConnector" />
+                      <Button AutomationProperties.AutomationId="SearchKeywordChip" Classes="chip" Padding="8,0" MinHeight="0" Height="24" MaxWidth="240" Command="{Binding $parent[Window].DataContext.RemoveTermCommand}" CommandParameter="{Binding Term}" ToolTip.Tip="{Binding EditHint}" IsEnabled="{Binding $parent[Window].DataContext.IsChipEditingEnabled}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                          <TextBlock Text="{Binding Term}" FontSize="12" MaxWidth="200" TextTrimming="CharacterEllipsis" />
+                          <TextBlock Text="×" FontSize="12" />
+                        </StackPanel>
+                      </Button>
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" IsEnabled="{Binding IsLiteralInputEnabled}">
+              <TextBlock Text="下一连接" Classes="caption" FontSize="10" VerticalAlignment="Center" />
+              <RadioButton Content="AND" IsChecked="{Binding UseAnd, Mode=TwoWay}" GroupName="Operator" MinHeight="0" FontSize="11" ToolTip.Tip="下个关键词使用 AND；括号模式新增词追加到根层，已有连接请在高级搜索中编辑" />
+              <RadioButton Content="OR" IsChecked="{Binding UseOr, Mode=TwoWay}" GroupName="Operator" MinHeight="0" FontSize="11" ToolTip.Tip="下个关键词使用 OR；AND 优先于 OR，以括号公式为准" />
+            </StackPanel>
+            <Button x:Name="GroupingButton" Grid.Column="2" Content="高级搜索…" ContentTemplate="{StaticResource AdvancedActionTemplate}" Classes="quiet" MinHeight="0" Padding="4,0" Click="Grouping_OnClick" IsEnabled="{Binding IsIdle}" AutomationProperties.AutomationId="OpenQueryGrouping" ToolTip.Tip="逻辑搜索支持可视化或手写公式；正则匹配使用独立 pattern" />
+          </Grid>
+          <Grid Grid.Row="3" Classes="query-formula" ColumnDefinitions="Auto,*" ColumnSpacing="8">
+            <TextBlock Text="实际查询" Classes="caption" FontSize="10" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1" Text="{Binding QueryFormula}" AutomationProperties.AutomationId="SearchQueryFormula" Foreground="{DynamicResource DsMutedBrush}" FontSize="10" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding QueryFormula}" VerticalAlignment="Center" />
+          </Grid>
+        </Grid>
+      </Border>
+      <Grid x:Name="ResultsSection" Grid.Row="1" RowDefinitions="Auto,*">
+        <Grid x:Name="ResultsToolbar" ColumnDefinitions="Auto,Auto,*" ColumnSpacing="12" AutomationProperties.AutomationId="ResultsToolbar">
+          <TextBlock Text="搜索结果" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1" Text="{Binding Results.Count, StringFormat='{}{0:N0} 个文件'}" Classes="caption" FontSize="12" VerticalAlignment="Center" AutomationProperties.AutomationId="ResultFileCount" />
+          <TextBlock Grid.Column="2" Text="{Binding StatusText}" Classes="caption" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding StatusText}" HorizontalAlignment="Right" VerticalAlignment="Center" MaxWidth="420" Margin="24,0,0,0" />
+        </Grid>
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+          <ListBox x:Name="ResultsList" ItemsSource="{Binding Results}" Background="{DynamicResource DsSurfaceBrush}" BorderBrush="{DynamicResource DsBorderBrush}" BorderThickness="1" CornerRadius="10" DoubleTapped="Result_OnDoubleTapped" AutomationProperties.AutomationId="SearchResultsArea" AutomationProperties.Name="搜索结果">
+            <ListBox.Styles>
+              <Style Selector="ListBoxItem">
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Margin" Value="0" />
+              </Style>
+            </ListBox.Styles>
+            <ListBox.ItemContainerTheme>
+              <ControlTheme TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                <Setter Property="AutomationProperties.Name" Value="{Binding Title}" />
+              </ControlTheme>
+            </ListBox.ItemContainerTheme>
+            <ListBox.ItemsPanel>
+              <ItemsPanelTemplate>
+                <VirtualizingStackPanel />
+              </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Expander Theme="{StaticResource ResultExpanderTheme}" IsExpanded="{Binding IsExpanded, Mode=TwoWay}" Expanding="Result_OnExpanding" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" AutomationProperties.Name="{Binding Title}">
+                  <Expander.Header>
+                    <Grid ColumnDefinitions="34,*,Auto" ColumnSpacing="11" Margin="0,10,10,9">
+                      <Border x:Name="ResultFormatBadge" Classes="file-type" Classes.pdf="{Binding IsPdfFile}" Classes.word="{Binding IsWordFile}" Classes.sheet="{Binding IsSpreadsheetFile}" Classes.slides="{Binding IsPresentationFile}" Classes.markdown="{Binding IsMarkdownFile}" Width="34" Height="40" CornerRadius="4" BorderThickness="1" VerticalAlignment="Top" AutomationProperties.AutomationId="FileTypeBadge" AutomationProperties.Name="{Binding FileTypeLabel}">
+                        <StackPanel Spacing="3" VerticalAlignment="Center">
+                          <Path Data="M5,2 L14,2 L19,7 L19,22 L5,22 Z M13,2 L13,8 L19,8 M8,12 L16,12 M8,16 L14,16" StrokeThickness="1.5" Width="14" Height="17" Stretch="Uniform" HorizontalAlignment="Center" />
+                          <TextBlock Text="{Binding FileTypeLabel}" FontSize="8" FontWeight="Bold" HorizontalAlignment="Center" />
+                        </StackPanel>
+                      </Border>
+                      <StackPanel Grid.Column="1" Spacing="4">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                          <TextBlock Text="{Binding FileName}" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding FileName}" VerticalAlignment="Center" />
+                          <Border Grid.Column="1" Background="{DynamicResource DsAccentSoftBrush}" CornerRadius="4" Padding="6,1">
+                            <TextBlock Text="{Binding MatchCountText}" Foreground="{DynamicResource DsMutedBrush}" FontSize="10" />
+                          </Border>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                          <TextBlock Text="{Binding FullPath}" Classes="caption" FontSize="10" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding FullPath}" />
+                          <TextBlock Grid.Column="1" Text="{Binding ModifiedText}" Classes="caption" FontSize="10" />
+                        </Grid>
+                        <controls:ExcerptTextBlock Before="{Binding FirstBefore}" Match="{Binding FirstText}" After="{Binding FirstAfter}" FontSize="12" Foreground="{DynamicResource DsMutedBrush}" TextWrapping="Wrap" MaxHeight="40" />
+                      </StackPanel>
+                      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Top">
+                        <Button Content="定位并选中" ContentTemplate="{StaticResource PreviewActionTemplate}" AutomationProperties.Name="定位并选中" Classes="quiet" Command="{Binding $parent[Window].DataContext.PreviewFileCommand}" CommandParameter="{Binding}" Padding="6,3" Height="28" MinHeight="0" ToolTip.Tip="预览并选中命中文字" />
+                        <Button Content="⋯" Classes="quiet icon" AutomationProperties.Name="文件更多操作" Width="26" Height="28" MinWidth="0" MinHeight="0" Padding="0">
+                          <Button.Flyout>
+                            <Flyout>
+                              <StackPanel Spacing="4" MinWidth="180">
+                                <Button Content="原文件查找" AutomationProperties.AutomationId="FindOriginalFile" Tag="FindFile" Click="FileAction_OnClick" HorizontalAlignment="Stretch" />
+                                <Button Content="原程序定位首条" Tag="LocateFile" Click="FileAction_OnClick" HorizontalAlignment="Stretch" />
+                                <Button Content="所在目录" Tag="RevealFile" Click="FileAction_OnClick" HorizontalAlignment="Stretch" />
+                                <Button Content="复制路径" Click="CopyPath_OnClick" HorizontalAlignment="Stretch" />
+                                <TextBlock Text="{Binding WarningsText}" IsVisible="{Binding HasWarnings}" Foreground="{DynamicResource DsWarningBrush}" TextWrapping="Wrap" MaxWidth="360" Margin="4,8" AutomationProperties.Name="文件提取说明" />
+                              </StackPanel>
+                            </Flyout>
+                          </Button.Flyout>
+                        </Button>
+                      </StackPanel>
+                    </Grid>
+                  </Expander.Header>
+                  <!-- Preserve the bounded virtualized inner viewport and always-visible footer. -->
+                  <StackPanel Spacing="3" Margin="30,0,10,4">
+                    <ListBox ItemsSource="{Binding VisibleMatches}" MaxHeight="320" Background="{DynamicResource DsSurfaceSoftBrush}" BorderThickness="0" AutomationProperties.Name="匹配详情列表">
+                      <ListBox.Styles>
+                        <Style Selector="ListBoxItem">
+                          <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        </Style>
+                      </ListBox.Styles>
+                      <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <VirtualizingStackPanel />
+                        </ItemsPanelTemplate>
+                      </ListBox.ItemsPanel>
+                      <ListBox.ItemTemplate>
+                        <DataTemplate>
+                          <StackPanel Margin="0,4" Spacing="4" DoubleTapped="Match_OnDoubleTapped">
+                            <DockPanel>
+                              <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="2">
+                                <Button Content="定位并选中" ContentTemplate="{StaticResource PreviewActionTemplate}" AutomationProperties.Name="定位并选中" Classes="quiet" Command="{Binding $parent[Window].DataContext.PreviewMatchCommand}" CommandParameter="{Binding}" Padding="6,3" MinHeight="28" />
+                                <Button Content="⋯" Classes="quiet icon" AutomationProperties.Name="匹配更多操作" Width="26" Height="28" MinWidth="0" MinHeight="0" Padding="0">
+                                  <Button.Flyout>
+                                    <Flyout>
+                                      <StackPanel Spacing="4" MinWidth="180">
+                                        <Button Content="原文件查找" AutomationProperties.AutomationId="FindOriginalMatch" Tag="FindMatch" Click="FileAction_OnClick" HorizontalAlignment="Stretch" />
+                                        <Button Content="原程序定位" Tag="LocateMatch" Click="FileAction_OnClick" HorizontalAlignment="Stretch" />
+                                      </StackPanel>
+                                    </Flyout>
+                                  </Button.Flyout>
+                                </Button>
+                              </StackPanel>
+                              <TextBlock Text="{Binding Position}" Classes="caption" FontSize="10" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            </DockPanel>
+                            <controls:ExcerptTextBlock Before="{Binding Before}" Match="{Binding Text}" After="{Binding After}" FontSize="12" TextWrapping="Wrap" />
+                          </StackPanel>
+                        </DataTemplate>
+                      </ListBox.ItemTemplate>
+                    </ListBox>
+                    <DockPanel>
+                      <Button Content="再显示 50 处" Classes="quiet" DockPanel.Dock="Right" Height="28" MinHeight="0" Padding="8,2" FontSize="11" Command="{Binding LoadMoreCommand}" IsEnabled="{Binding HasMore}" />
+                      <TextBlock Text="{Binding LoadedText}" Classes="caption" FontSize="10" VerticalAlignment="Center" />
+                    </DockPanel>
+                  </StackPanel>
+                </Expander>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+          <Border x:Name="InlinePreviewHost" Grid.Column="1" Width="340" Margin="8,0,0,0" IsVisible="False" Background="{DynamicResource DsSurfaceBrush}" BorderBrush="{DynamicResource DsBorderBrush}" BorderThickness="1" CornerRadius="10" ClipToBounds="True">
+            <controls:MatchPreviewPane x:Name="InlinePreviewPane" />
+          </Border>
+        </Grid>
+      </Grid>
+      <Grid x:Name="StatusFooter" Grid.Row="2" ColumnDefinitions="*,26" ColumnSpacing="6">
+        <StackPanel Spacing="0">
+          <TextBlock Text="{Binding ProgressText}" AutomationProperties.AutomationId="SearchProgressText" Classes="caption" FontSize="10" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding ProgressText}" />
+          <TextBlock Text="{Binding StatusText}" AutomationProperties.AutomationId="SearchStatusText" Classes="caption" FontSize="10" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding StatusText}" />
+        </StackPanel>
+        <Button Grid.Column="1" Content="!" Classes="quiet icon" Width="24" Height="24" MinWidth="0" MinHeight="0" Padding="0" AutomationProperties.Name="搜索状态与问题详情" ToolTip.Tip="查看完整状态、警告和错误">
+          <Button.Flyout>
+            <Flyout>
+              <StackPanel Spacing="8" Width="490">
+                <TextBlock Text="{Binding StatusText}" TextWrapping="Wrap" />
+                <StackPanel IsVisible="{Binding HasOriginalFindTerm}" Spacing="4">
+                  <TextBlock Text="原文件查找词（原程序中可手动 Ctrl+F）" Classes="section-title" />
+                  <TextBox Text="{Binding OriginalFindSearchText, Mode=OneWay}" IsReadOnly="True" AutomationProperties.AutomationId="OriginalFindTerm" />
+                  <TextBlock Text="{Binding OriginalFindHint}" TextWrapping="Wrap" />
+                  <Button Content="复制查找词" Click="CopyOriginalFind_OnClick" HorizontalAlignment="Left" />
+                </StackPanel>
+                <TextBlock Text="{Binding DiagnosticsText}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding SettingsWarning}" TextWrapping="Wrap" />
+                <ListBox MaxHeight="300" ItemsSource="{Binding Issues}" AutomationProperties.Name="搜索诊断详情列表">
+                  <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <VirtualizingStackPanel />
+                    </ItemsPanelTemplate>
+                  </ListBox.ItemsPanel>
+                  <ListBox.ItemTemplate>
+                    <DataTemplate>
+                      <StackPanel Margin="4,5" Spacing="2">
+                        <TextBlock Text="{Binding Path}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Code}" Classes="caption" />
+                        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+              </StackPanel>
+            </Flyout>
+          </Button.Flyout>
+        </Button>
+      </Grid>
+    </Grid>
+  </Grid>
+</Window>

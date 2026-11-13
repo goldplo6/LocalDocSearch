@@ -1,0 +1,62 @@
+name: Local Windows release candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Local candidate version (must contain a prerelease suffix)
+        required: true
+        default: 1.0.0-rc.1
+        type: string
+      include_samples:
+        description: Include original small and long sample documents
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: local-release-candidate-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  windows-candidate:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+      CANDIDATE_VERSION: ${{ inputs.version }}
+      INCLUDE_SAMPLES: ${{ inputs.include_samples }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install pinned project-local SDK
+        shell: pwsh
+        run: ./scripts/bootstrap-sdk.ps1
+      - name: Restore source dependencies in locked mode for evidence checks
+        shell: pwsh
+        run: ./scripts/dev.ps1 -Action Restore -Locked
+      - name: Validate release scripts and actual license evidence
+        shell: pwsh
+        run: ./scripts/release-script-tests.ps1
+      - name: Build, test, freeze candidate RID locks, publish and verify ZIP
+        shell: pwsh
+        run: |
+          $includeSamples = $env:INCLUDE_SAMPLES -eq 'true'
+          ./scripts/release.ps1 -Version $env:CANDIDATE_VERSION -IncludeSamples:$includeSamples
+      - name: Upload candidate ZIP and checksum (no public release)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: LocalDocSearch-${{ inputs.version }}-win-x64-candidate
+          path: |
+            artifacts/releases/LocalDocSearch-*/LocalDocSearch-*.zip
+            artifacts/releases/LocalDocSearch-*/SHA256SUMS.txt
+            artifacts/releases/LocalDocSearch-*/validation.json
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
