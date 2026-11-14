@@ -81,3 +81,39 @@ pwsh -File artifacts/measure-concurrency-experiment.ps1 -BenchmarkDll tools/Loca
 - 每次脚本运行使用新的 GUID 日志目录；逐组核验进程退出码、所有 round 状态/计数/diagnostics、独立验证摘要、源完整性和控制响应，再输出各场景/worker 的 median、min/max、首结果、CPU、allocation、GC、寿命 peak。单组进程最多等待 300 秒，超时终止该进程树并使实验失败；CLI 自身始终等待其搜索任务，不遗留后台搜索。
 - **保留负面结果。** large-log 只有一个 eligible file，受限文件并发预期不提速。OS cache 未清空；源 hash 前置读取会暖缓存；进程中三个 repeat 的寿命 peak 是累积高水位。禁止把这些值解释成冷缓存或每轮独立峰值。脚本只收集和校验，不断言 workers 2/4 必须更快。
 
+## 字面量候选预筛独立复测
+
+新增独立 `literal-prepare` / `literal-run`，原命令语义保持原样。准备目录须尚未存在（包括空目录），只生成原创固定正文，原四类 ASCII 语料保持不变。标准五个各 2 MiB 的 TXT，共 10 MiB；quick 各 64 KiB，共 320 KiB。长行 8191 字符，标准 256 行、quick 8 行；短行 127 字符，标准 16384 行、quick 512 行。稀疏语料仅第一行末尾含全部 16 词，全命中语料每行末尾含全部 16 词。
+
+```powershell
+# 使用统一构建产物；准备测试小语料时末尾加 --quick。
+dotnet tools/LocalDocSearch.Benchmarks/bin/Release/net10.0/LocalDocSearch.Benchmarks.dll literal-prepare C:\Temp\lds-literal-new
+dotnet tools/LocalDocSearch.Benchmarks/bin/Release/net10.0/LocalDocSearch.Benchmarks.dll literal-run C:\Temp\lds-literal-new none-16 --repeat 3 --output C:\Temp\lds-literal-none16-new.json
+```
+
+冻结 **15 场景**，全部 workers=1、OR、ContextCharacters=0，恰好扫描 1 文件、Completed、错误警告为 0。32/64 词 sparse/all 查询仍仅有原 16 个真实 token，其余查询词未出现，`querySemantics` 明示此口径。unicode 文件以大块“文”填充，首行含 16 个“词条000终”式 token，并补少量 x，使每行含换行恰为 8192 UTF-8 bytes，标准 256 行、quick 8 行；unicode-none 查询“缺失000终”式词，unicode-sparse 查询“词条000终”式词。启用门槛与实际收益由集成方根据后续同 driver ABBA 复测决定。repeat 默认 3，范围 1..20；仅输出 JSON，output 须位于根外、父目录已存在且目标为新文件。
+
+| 场景 | 模式 | 命中文件 | 标准命中 | quick 命中 |
+| --- | --- | --- | --- | --- |
+| none-4 | 4 词，无命中长段 | 0 | 0 | 0 |
+| none-16 | 16 词，无命中长段 | 0 | 0 | 0 |
+| none-64 | 64 词，无命中长段 | 0 | 0 | 0 |
+| sparse-16 | 16 词，首长段命中 | 1 | 16 | 16 |
+| all-16 | 16 词，每长段全命中 | 1 | 4096 | 128 |
+| single-long | 1 词，无命中长段 | 0 | 0 | 0 |
+| short-16 | 16 词，无命中短行 | 0 | 0 | 0 |
+| regex | 正则，无命中长段 | 0 | 0 | 0 |
+| none-32 | 32 词，无命中长段 | 0 | 0 | 0 |
+| sparse-32 | 32 词，16 词首长段命中 | 1 | 16 | 16 |
+| all-32 | 32 词，每长段有 16 词命中 | 1 | 4096 | 128 |
+| sparse-64 | 64 词，16 词首长段命中 | 1 | 16 | 16 |
+| all-64 | 64 词，每长段有 16 词命中 | 1 | 4096 | 128 |
+| unicode-none-64 | 64 中文词，中文长段无命中 | 0 | 0 | 0 |
+| unicode-sparse-64 | 64 中文词，中文首长段有 16 词命中 | 1 | 16 | 16 |
+
+计时和分配含词数组、SearchRequest 及 query 创建；性能 callback 仅计数和首结果，结果摘要字段省略。随后独立 `resultVerification` 沿用 ResultDigest 计算完整内容及顺序 SHA，标记 `verification-excluded`，从性能耗时/分配中排除。报告复用 MachineInfo/RoundMeasurement/MemoryMeasurement，并记录 Core/driver SHA、源 fingerprint、CPU、GC、allocation、首结果和寿命累计 peak。搜索前后完整核验 marker、manifest、确定性正文 SHA/length/mtime、全部目录成员；越界、额外条目、reparse 链接和 Windows 硬链接使运行失败，损坏现场保持原样。核验位于计时外，会暖 OS cache，且计入进程寿命 peak。
+
+算法基线使用**同一最新 driver 及依赖**复制到两个隔离目录，仅替换 baseline 的 LocalDocSearch.Core.dll 为 git 初始版已验证二进制（来自通过 1247 项的 snapshot96049…）。运行前核对全部依赖 SHA，确认仅 Core 不同；共用同一语料根，交替独立进程运行，核对 DriverSha256、CoreSha256、源 fingerprint、状态/计数及 verification 两个 SHA。保留变慢结果，不声称普遍提速。分别运行历史与最新 driver 的数据不构成此算法对照。
+
+测试冻结 **38 cases**：15 场景、1 语料清单、12 非法参数、6 损坏不修复、3 output、1 Windows 硬链接；不做耗时断言。硬链接用例在其它 OS 直接返回。全构建/测试/测量由集成方统一执行。
+

@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Diagnostics;
 using System.Security;
 using System.Text;
@@ -141,7 +142,11 @@ public sealed partial class TextSearchEngine
         {
             throw new ArgumentException("搜索根目录不可访问：" + exception.Message, nameof(request), exception);
         }
-        return new Query(root, terms, expression, termIndices, regularExpression, extensions, comparison, request.ContextCharacters, request.EncodingMode, limits);
+        // A query-wide immutable candidate set avoids a full per-term scan of long empty segments.
+        // Keep the ordinary IndexOf loop authoritative for every occurrence and its budgets.
+        var literalCandidates = terms.Length >= 32 ? SearchValues.Create(terms, comparison) : null;
+        return new Query(root, terms, expression, termIndices, regularExpression, literalCandidates,
+            extensions, comparison, request.ContextCharacters, request.EncodingMode, limits);
     }
 
     private async Task<SearchSummary> SearchCoreAsync(
@@ -343,17 +348,22 @@ public sealed partial class TextSearchEngine
                 if (text.Length > query.Limits.MaxSegmentCharacters)
                     throw new SearchResourceLimitException(nameof(SearchResourceLimits.MaxSegmentCharacters), query.Limits.MaxSegmentCharacters);
                 segmentMatches.Clear();
+                // IndexOfAny uses the same ordinal comparison as the per-term matcher. Nothing
+                // can match before this offset; a negative result only skips this segment's loop,
+                // never extraction, EOF validation, diagnostics or whole-file qualification.
+                var literalStart = query.LiteralCandidates is not null && text.Length >= 256
+                    ? text.AsSpan().IndexOfAny(query.LiteralCandidates) : 0;
                 if (query.RegularExpression is not null)
                 {
                     // Keep a segment's regex work synchronous and budgeted. Pause is acknowledged
                     // at the surrounding checkpoints, outside the regex matching stopwatch.
                     MatchRegularExpression(segment, query, regexTimer!, matches.Count, segmentMatches, textBudget, token);
                 }
-                else for (var termIndex = 0; termIndex < query.Terms.Length; termIndex++)
+                else for (var termIndex = 0; literalStart >= 0 && termIndex < query.Terms.Length; termIndex++)
                 {
                     await CheckpointAsync(executionControl, token).ConfigureAwait(false);
                     var term = query.Terms[termIndex];
-                    var start = 0;
+                    var start = literalStart;
                     var iterations = 0;
                     while (start <= text.Length - term.Length)
                     {
@@ -500,7 +510,7 @@ public sealed partial class TextSearchEngine
     }
 
     private sealed record Query(string Root, string[] Terms, SearchFormula.ExpressionSnapshot? Expression,
-        int[] TermIndices, Regex? RegularExpression,
+        int[] TermIndices, Regex? RegularExpression, SearchValues<string>? LiteralCandidates,
         HashSet<string> Extensions, StringComparison Comparison, int ContextCharacters,
         TextEncodingMode EncodingMode, SearchResourceLimits Limits);
 

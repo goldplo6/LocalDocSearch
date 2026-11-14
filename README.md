@@ -2,9 +2,10 @@
 
 源码仓库：<https://github.com/goldplo6/LocalDocSearch>。首次上传包含当前源码、测试、规划与验收文档，以及受限并发实验脚本；SDK、编译输出、会话记录、本机设置、原始测量数据与候选 ZIP 保留在本地。历史报告中的 `artifacts/` 数据链接对应本地验收记录，GitHub 克隆中仅包含明确纳入版本控制的实验脚本；历史报告所述“未 commit／push”是当时阶段状态。
 
-Windows 11 本地文档全文搜索项目。支持 TXT、MD、LOG、CSV、DOCX、XLSX、PPTX、文字型 PDF，提供逐项 AND/OR、可视化嵌套括号及手写逻辑公式、独立正则匹配、可选 GB18030 编码兼容、本地设置、格式范围、资源预算与聚合诊断。可以重新核验来源并在只读文字预览中选中命中，也可请求原文件查找辅助；各自按实际证据反馈结果。提取与搜索在本地执行，读取 Office 文档无需启动 Office。最新 rc.8 增加暂停／继续与停止按钮，并对小文件使用自适应读取缓冲；1173 项完整回归及独立解压实窗通过。5,000 小文件交替基准的累计分配减少约 82.4%，耗时中位数缩短约 2.3%；窗口端到端及变慢场景另行记录，不代表所有场景提速或峰值内存降低。保留 rc.7 的结果字符、Office 展开量和预览串行护栏，启动名为 `DocSearch.exe`。保留 rc.6 的 Demo 对齐布局、原创图标、响应预览和输入交互覆盖。真实环境与正式分发收尾见下列报告。默认 Acrobat 自动填词仍受首次条款弹窗阻塞，继续停止调试。
+Windows 11 本地文档全文搜索项目。支持 TXT、MD、LOG、CSV、DOCX、XLSX、PPTX、文字型 PDF，提供逐项 AND/OR、可视化嵌套括号及手写逻辑公式、独立正则匹配、可选 GB18030 编码兼容、本地设置、格式范围、资源预算与聚合诊断。可以重新核验来源并在只读文字预览中选中命中，也可请求原文件查找辅助；各自按实际证据反馈结果。提取与搜索在本地执行，读取 Office 文档无需启动 Office。最新 rc.9 加入至少 32 个不同关键词的候选预筛，1453 项完整回归、15 场景交替对照和包内原生查询／预览验证通过；详情见[本轮验收](docs/literal-prefilter-results.md)。历史 rc.8 增加暂停／继续与停止按钮，并对小文件使用自适应读取缓冲；1173 项完整回归及独立解压实窗通过。5,000 小文件交替基准的累计分配减少约 82.4%，耗时中位数缩短约 2.3%；窗口端到端及变慢场景另行记录，不代表所有场景提速或峰值内存降低。保留 rc.7 的结果字符、Office 展开量和预览串行护栏，启动名为 `DocSearch.exe`。保留 rc.6 的 Demo 对齐布局、原创图标、响应预览和输入交互覆盖。真实环境与正式分发收尾见下列报告。默认 Acrobat 自动填词仍受首次条款弹窗阻塞，继续停止调试。
 
-- [1／2／4 受限并发对照实验](docs/bounded-concurrency-results.md)及[实施计划](docs/bounded-concurrency-plan.md)：1247 项回归通过，混合格式引擎 4 工作者约缩短 32.0%，5000 文件实窗约缩短 36.0%；保留变慢与资源代价，默认 1，当前 rc.8 成品未换包。
+- [多关键词候选预筛 rc.9 验收](docs/literal-prefilter-results.md)及[实施计划](docs/literal-prefilter-plan.md)：32 词以上长片段启用，ASCII 合成场景中位耗时约缩短 9%～32%；保留少词／正则对照波动和内存成本，不代表所有文档提速。
+- [1／2／4 受限并发对照实验](docs/bounded-concurrency-results.md)及[实施计划](docs/bounded-concurrency-plan.md)：1247 项回归通过，混合格式引擎 4 工作者约缩短 32.0%，5000 文件实窗约缩短 36.0%；保留变慢与资源代价，默认 1；实验实现已收录 rc.9，工作区内原 rc.8 成品另行保留。
 - [多文件效率与暂停／继续／停止 rc.8 验收](docs/multifile-search-results.md)及[实施计划](docs/multifile-search-plan.md)
 - [性能与内存治理、短启动名 rc.7 验收](docs/performance-memory-results.md)及[实施计划](docs/performance-memory-plan.md)
 - [Demo 对齐与原创应用图标 rc.6 验收](docs/demo-alignment-results.md)、[实施计划](docs/demo-alignment-plan.md)及[图标设计](docs/app-icon-design.md)

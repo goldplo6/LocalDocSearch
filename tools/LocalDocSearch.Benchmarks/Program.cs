@@ -21,13 +21,52 @@ public static class BenchmarkCli
                     schemaVersion = 1, tool = BenchmarkCorpus.Generator,
                     commands = new[] { "prepare <new-or-empty-root> [--quick] [--log-mib 64..256]",
                         "run <owned-root> <scenario> [--repeat 1..20] [--workers 1|2|4] [--output new-json-file]",
-                        "control <owned-root> <many-small|mixed> [--workers 1|2|4] [--output new-json-file]" },
+                        "control <owned-root> <many-small|mixed> [--workers 1|2|4] [--output new-json-file]",
+                        "literal-prepare <new-root> [--quick]",
+                        "literal-run <owned-root> <scenario> [--repeat 1..20] [--output new-json-file]" },
                     scenarios = BenchmarkCorpus.ScenarioNames, omittedFields = BenchmarkRunner.OmittedFields
                 }));
                 return 0;
             }
             if (args.Length < 2) throw new BenchmarkException("invalid-arguments");
             string command = args[0], root = args[1];
+            if (command is "literal-prepare" or "literal-run")
+            {
+                if (command == "literal-prepare")
+                {
+                    if (args.Length > 3 || args.Length == 3 && args[2] != "--quick")
+                        throw new BenchmarkException("invalid-arguments");
+                    var manifest = LiteralPrefilterBenchmark.Prepare(root, args.Length == 3);
+                    await output.WriteLineAsync(BenchmarkJson.Serialize(new { passed = true, manifest,
+                        scenarios = LiteralPrefilterBenchmark.Scenarios }));
+                    return 0;
+                }
+                if (args.Length < 3) throw new BenchmarkException("invalid-arguments");
+                scenario = args[2];
+                LiteralPrefilterBenchmark.Expected(scenario, true);
+                int literalRepeat = 3;
+                string? literalOutput = null;
+                var literalSeen = new HashSet<string>(StringComparer.Ordinal);
+                for (int index = 3; index < args.Length; index++)
+                {
+                    if (!literalSeen.Add(args[index])) throw new BenchmarkException("duplicate-option");
+                    if (args[index] == "--repeat") literalRepeat = IntegerOption(args, ref index);
+                    else if (args[index] == "--output" && ++index < args.Length)
+                        literalOutput = ValidateOutputPath(root, args[index]);
+                    else throw new BenchmarkException("unknown-or-incomplete-option");
+                }
+                var literalReport = await LiteralPrefilterBenchmark.RunAsync(root, scenario, literalRepeat).ConfigureAwait(false);
+                string literalJson = BenchmarkJson.Serialize(literalReport);
+                if (literalOutput is not null)
+                {
+                    BenchmarkCorpus.AssertOrdinaryAncestors(literalOutput);
+                    using var stream = new FileStream(literalOutput, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+                    using var writer = new StreamWriter(stream, new UTF8Encoding(false));
+                    await writer.WriteAsync(literalJson).ConfigureAwait(false);
+                }
+                await output.WriteLineAsync(literalJson);
+                return literalReport.Passed ? 0 : 2;
+            }
             if (command == "prepare")
             {
                 bool quick = false;
