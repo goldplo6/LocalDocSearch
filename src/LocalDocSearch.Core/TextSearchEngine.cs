@@ -142,9 +142,10 @@ public sealed partial class TextSearchEngine
         {
             throw new ArgumentException("搜索根目录不可访问：" + exception.Message, nameof(request), exception);
         }
-        // A query-wide immutable candidate set avoids a full per-term scan of long empty segments.
-        // Keep the ordinary IndexOf loop authoritative for every occurrence and its budgets.
-        var literalCandidates = terms.Length >= 32 ? SearchValues.Create(terms, comparison) : null;
+        // Defer the immutable candidate set until a long segment actually needs it.
+        // Lazy's default publication mode also shares one construction across file workers.
+        var literalCandidates = terms.Length >= 32
+            ? new Lazy<SearchValues<string>>(() => SearchValues.Create(terms, comparison)) : null;
         return new Query(root, terms, expression, termIndices, regularExpression, literalCandidates,
             extensions, comparison, request.ContextCharacters, request.EncodingMode, limits);
     }
@@ -352,7 +353,7 @@ public sealed partial class TextSearchEngine
                 // can match before this offset; a negative result only skips this segment's loop,
                 // never extraction, EOF validation, diagnostics or whole-file qualification.
                 var literalStart = query.LiteralCandidates is not null && text.Length >= 256
-                    ? text.AsSpan().IndexOfAny(query.LiteralCandidates) : 0;
+                    ? text.AsSpan().IndexOfAny(query.LiteralCandidates.Value) : 0;
                 if (query.RegularExpression is not null)
                 {
                     // Keep a segment's regex work synchronous and budgeted. Pause is acknowledged
@@ -380,8 +381,9 @@ public sealed partial class TextSearchEngine
                         var beforeStart = Math.Max(0, position - query.ContextCharacters);
                         var afterLength = Math.Min(query.ContextCharacters, text.Length - end);
                         textBudget.Reserve(position - beforeStart, term.Length, afterLength);
-                        var location = segment.Source.Kind == SourceKind.TextLine
-                            ? segment.Source with { Column = position + 1 } : segment.Source;
+                        var location = segment.Source;
+                        if (location.Kind == SourceKind.TextLine && location.Column != position + 1)
+                            location = location with { Column = position + 1 };
                         segmentMatches.Add(new MatchItem(term, text[beforeStart..position], text[position..end],
                             text.Substring(end, afterLength), location, segment.Id, position));
                         found[termIndex] = true;
@@ -435,8 +437,9 @@ public sealed partial class TextSearchEngine
                     var beforeStart = Math.Max(0, position - query.ContextCharacters);
                     var afterLength = Math.Min(query.ContextCharacters, segment.Text.Length - end);
                     textBudget.Reserve(position - beforeStart, match.Length, afterLength);
-                    var location = segment.Source.Kind == SourceKind.TextLine
-                        ? segment.Source with { Column = position + 1 } : segment.Source;
+                    var location = segment.Source;
+                    if (location.Kind == SourceKind.TextLine && location.Column != position + 1)
+                        location = location with { Column = position + 1 };
                     matches.Add(new MatchItem(query.RegularExpression.ToString(), segment.Text[beforeStart..position],
                         match.Value, segment.Text.Substring(end, afterLength), location, segment.Id, position));
                 }
@@ -510,7 +513,7 @@ public sealed partial class TextSearchEngine
     }
 
     private sealed record Query(string Root, string[] Terms, SearchFormula.ExpressionSnapshot? Expression,
-        int[] TermIndices, Regex? RegularExpression, SearchValues<string>? LiteralCandidates,
+        int[] TermIndices, Regex? RegularExpression, Lazy<SearchValues<string>>? LiteralCandidates,
         HashSet<string> Extensions, StringComparison Comparison, int ContextCharacters,
         TextEncodingMode EncodingMode, SearchResourceLimits Limits);
 

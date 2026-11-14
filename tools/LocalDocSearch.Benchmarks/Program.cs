@@ -23,10 +23,45 @@ public static class BenchmarkCli
                         "run <owned-root> <scenario> [--repeat 1..20] [--workers 1|2|4] [--output new-json-file]",
                         "control <owned-root> <many-small|mixed> [--workers 1|2|4] [--output new-json-file]",
                         "literal-prepare <new-root> [--quick]",
-                        "literal-run <owned-root> <scenario> [--repeat 1..20] [--output new-json-file]" },
+                        "literal-run <owned-root> <scenario> [--repeat 1..20] [--output new-json-file]",
+                        "overhead-coordinates [--repeat 1..20] [--iterations 1..20000000] [--output new-json-file]" },
                     scenarios = BenchmarkCorpus.ScenarioNames, omittedFields = BenchmarkRunner.OmittedFields
                 }));
                 return 0;
+            }
+            if (args.Length > 0 && args[0] == "overhead-coordinates")
+            {
+                int coordinateRepeat = 3, iterations = FixedOverheadBenchmark.DefaultIterations;
+                string? coordinateOutput = null;
+                var coordinateSeen = new HashSet<string>(StringComparer.Ordinal);
+                for (int index = 1; index < args.Length; index++)
+                {
+                    string option = args[index];
+                    if (!coordinateSeen.Add(option)) throw new BenchmarkException("duplicate-option");
+                    if (option == "--repeat") coordinateRepeat = IntegerOption(args, ref index);
+                    else if (option == "--iterations") iterations = IntegerOption(args, ref index);
+                    else if (option == "--output" && ++index < args.Length)
+                    {
+                        coordinateOutput = Path.GetFullPath(args[index]);
+                        BenchmarkCorpus.AssertOrdinaryAncestors(coordinateOutput);
+                        if (File.Exists(coordinateOutput) || Directory.Exists(coordinateOutput))
+                            throw new BenchmarkException("output-must-be-new");
+                        if (!Directory.Exists(Path.GetDirectoryName(coordinateOutput)))
+                            throw new BenchmarkException("output-parent-must-exist");
+                    }
+                    else throw new BenchmarkException("unknown-or-incomplete-option");
+                }
+                var report = FixedOverheadBenchmark.RunCoordinates(coordinateRepeat, iterations);
+                string coordinateJson = BenchmarkJson.Serialize(report);
+                if (coordinateOutput is not null)
+                {
+                    BenchmarkCorpus.AssertOrdinaryAncestors(coordinateOutput);
+                    using var stream = new FileStream(coordinateOutput, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+                    using var writer = new StreamWriter(stream, new UTF8Encoding(false));
+                    await writer.WriteAsync(coordinateJson).ConfigureAwait(false);
+                }
+                await output.WriteLineAsync(coordinateJson);
+                return report.Passed ? 0 : 2;
             }
             if (args.Length < 2) throw new BenchmarkException("invalid-arguments");
             string command = args[0], root = args[1];

@@ -16,6 +16,8 @@ public sealed class LiteralPrefilterBenchmarkTests
     [InlineData("all-16", 128)]
     [InlineData("single-long", 0)]
     [InlineData("short-16", 0)]
+    [InlineData("short-32", 0)]
+    [InlineData("short-64", 0)]
     [InlineData("regex", 0)]
     [InlineData("none-32", 0)]
     [InlineData("sparse-32", 16)]
@@ -29,7 +31,7 @@ public sealed class LiteralPrefilterBenchmarkTests
         using var corpus = new OwnedCorpus();
         var report = await LiteralPrefilterBenchmark.RunAsync(corpus.Root, scenario, 2);
         Assert.True(report.Passed);
-        Assert.Equal(15, LiteralPrefilterBenchmark.Scenarios.Count);
+        Assert.Equal(17, LiteralPrefilterBenchmark.Scenarios.Count);
         Assert.Equal(1, report.Workers);
         Assert.Equal(hits, report.Expected.Occurrences);
         Assert.Equal(hits > 0 ? 1 : 0, report.Expected.MatchedFiles);

@@ -24,7 +24,7 @@ public static class LiteralPrefilterBenchmark
     public const string Generator = "LocalDocSearch/literal-prefilter-v1";
     public static IReadOnlyList<string> Scenarios { get; } = Array.AsReadOnly(new[]
         { "none-4", "none-16", "none-64", "sparse-16", "all-16", "single-long", "short-16", "regex",
-            "none-32", "sparse-32", "all-32", "sparse-64", "all-64", "unicode-none-64", "unicode-sparse-64" });
+            "none-32", "sparse-32", "all-32", "sparse-64", "all-64", "unicode-none-64", "unicode-sparse-64", "short-32", "short-64" });
     private static readonly string[] Kinds = ["none", "sparse", "all", "short", "unicode"];
     private static string Term(int index) => $"zzneedle{index:D3}zz";
     private static string UnicodeTerm(int index) => $"词条{index:D3}终";
@@ -103,7 +103,7 @@ public static class LiteralPrefilterBenchmark
         if (!Scenarios.Contains(scenario, StringComparer.Ordinal)) throw new BenchmarkException("unknown-scenario");
         string kind = scenario.StartsWith("unicode", StringComparison.Ordinal) ? "unicode" :
             scenario.StartsWith("sparse", StringComparison.Ordinal) ? "sparse" :
-            scenario.StartsWith("all", StringComparison.Ordinal) ? "all" : scenario == "short-16" ? "short" : "none";
+            scenario.StartsWith("all", StringComparison.Ordinal) ? "all" : scenario.StartsWith("short-", StringComparison.Ordinal) ? "short" : "none";
         int hits = kind == "sparse" || scenario == "unicode-sparse-64" ? 16 : kind == "all" ? 16 * (quick ? 8 : 256) : 0;
         return new ScenarioExpectation(scenario, kind, 1, 2 * 1024 * 1024 / (quick ? 32 : 1), null,
             hits > 0 ? 1 : 0, hits, "Completed", 0, 0, hits, false);

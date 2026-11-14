@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using LocalDocSearch.Core;
@@ -10,7 +9,6 @@ namespace LocalDocSearch.Extractors;
 public sealed class ExcelTextExtractor(DocumentScopeOptions? options = null) : ITextExtractor
 {
     private readonly DocumentScopeOptions _options = options ?? new();
-    private static readonly Regex AddressPattern = new("^([A-Za-z]{1,3})([1-9][0-9]{0,6})$", RegexOptions.CultureInvariant | RegexOptions.NonBacktracking);
     public IReadOnlyCollection<string> Extensions { get; } = Array.AsReadOnly(new[] { ".xlsx" });
 
     public IAsyncEnumerable<TextSegment> ExtractAsync(string path, ExtractionContext context, CancellationToken cancellationToken = default) =>
@@ -129,13 +127,28 @@ public sealed class ExcelTextExtractor(DocumentScopeOptions? options = null) : I
         return result.ToString();
     }
 
-    private static bool TryCoordinates(string? address, out int row, out int column)
+    internal static bool TryCoordinates(string? address, out int row, out int column)
     {
         row = column = 0;
         if (address is null) return false;
-        var match = AddressPattern.Match(address);
-        if (!match.Success || !int.TryParse(match.Groups[2].Value, out row) || row > 1048576) return false;
-        foreach (var letter in match.Groups[1].Value.ToUpperInvariant()) column = column * 26 + letter - 'A' + 1;
+        ReadOnlySpan<char> reference = address.AsSpan();
+        // The original regex's $ also matched immediately before one final LF.
+        if (!reference.IsEmpty && reference[^1] == '\n') reference = reference[..^1];
+        if (reference.Length is < 2 or > 10) return false;
+
+        var letters = 0;
+        while (letters < reference.Length &&
+            (reference[letters] is >= 'A' and <= 'Z' or >= 'a' and <= 'z')) letters++;
+        var digits = reference.Length - letters;
+        if (letters is < 1 or > 3 || digits is < 1 or > 7 || reference[letters] is < '1' or > '9') return false;
+
+        foreach (var digit in reference[letters..])
+            if (digit is < '0' or > '9') return false;
+        // Keep the original current-culture integer conversion and failure outputs,
+        // including custom number-format signs, without allocating a substring.
+        if (!int.TryParse(reference[letters..], out row) || row > 1048576) return false;
+        foreach (var letter in reference[..letters])
+            column = column * 26 + (letter is >= 'a' and <= 'z' ? letter - 'a' : letter - 'A') + 1;
         return column <= 16384;
     }
 }
