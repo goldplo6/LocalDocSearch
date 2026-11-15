@@ -18,7 +18,7 @@
 
 ## 实验方法及口径
 
-机器为 AMD Ryzen 9 7940HX，16 核／32 逻辑处理器，可见物理内存 33,520,259,072 字节；SDK 10.0.403，运行时 .NET 10.0.14。未清空系统文件缓存，未调整其它后台程序。详见[机器记录](../artifacts/concurrency-machine-210c876cb9394d25ba7d35fad5a66340.json)。
+机器为 AMD Ryzen 9 7940HX，16 核／32 逻辑处理器，可见物理内存 33,520,259,072 字节；SDK 10.0.403，运行时 .NET 10.0.14。未清空系统文件缓存，未调整其它后台程序。详见[机器记录](../artifacts/history/records/concurrency-machine-210c876cb9394d25ba7d35fad5a66340.json)。
 
 CLI 使用现有 standard-64 原创语料，登记 6453 个文件。同一二进制按 1→2→4→4→2→1 串行启动独立进程，每组 3 轮，每个场景每档 6 个性能样本。五个场景共 90 个性能样本；另有 9 个错误／逻辑／取消语义样本、39 次独立内容验证及 18 次控制测量。源文件的 SHA、长度和修改时间在计时外前后核验，前置读取会预热缓存，因此这些不是冷缓存数据。
 
@@ -99,9 +99,9 @@ CLI：小文件／混合格式 × 三档 × 暂停继续、暂停停止、运行
 - [真实提取器回归](../tests/LocalDocSearch.Extractors.Tests/ConcurrentExtractorTests.cs)：八格式 × 2／4 共 16 项，同实例处理四个独立副本，串并行全部 TextSegment／Source／警告一致，源 SHA／mtime／长度不变且文件可独占重开。该测试证明独立调用结果一致，不把同步解析内部重叠视为已测结论。
 - [基准工具回归](../tests/LocalDocSearch.Benchmarks.Tests/ConcurrencyBenchmarkTests.cs)：非法档位在 I/O 前失败、实际结果全字段摘要、控制冻结与任务退出；性能摘要移出计时轮。
 - [隔离构建记录](../artifacts/concurrency-validation-96049d547b78403c919c0a4e1b094408/build-record.json)：189 个源输入、13 个锁文件，源与快照哈希保持一致。
-- [CLI 总报告与全部原始组](../artifacts/concurrency-experiment-0c12827543bc4d2a8319c43bd4518652/summary.json)、[桌面总报告与原始窗口组](../artifacts/concurrency-desktop-39cf5455a3454480a89b4db51942e540/summary.json)。
+- [CLI 总报告与全部原始组](../artifacts/history/performance/concurrency-experiment-0c12827543bc4d2a8319c43bd4518652/summary.json)、[桌面总报告与原始窗口组](../artifacts/history/performance/concurrency-desktop-39cf5455a3454480a89b4db51942e540/summary.json)。
 
 CLI assembly SHA-256：`0ed7b888db865e134d1488e0b9ef3bea85b54549d4f8b529d9c2ea1ae98f4926`。
 桌面 EXE SHA-256：`8b341723f6455e5a33352a8c7af6319572c55ed581f77cfe5d804d320d912c2a`；桌面 assembly SHA-256：`9d8abe7f265906fd477733b4b7270dc552ef297020e044033521a67ba6d22137`。CLI 与窗口的 Core／Extractors 依赖相同。
 
-复测入口为[隔离构建工具](../artifacts/build-concurrency-experiment.ps1)、[CLI 矩阵工具](../artifacts/measure-concurrency-experiment.ps1)、[桌面矩阵工具](../artifacts/measure-concurrency-desktop.ps1)及[终核工具](../artifacts/verify-concurrency-experiment.ps1)；参数与摘要口径见[基准说明](../tools/LocalDocSearch.Benchmarks/README.md#受限文件并发实验1--2--4)。本轮未生成新发布 ZIP，未替换当前浅目录应用，未 commit／push。后续选择以本报告的负载差异和资源边界为依据。
+复测入口为[隔离构建工具](../scripts/experiments/build-concurrency-experiment.ps1)、[CLI 矩阵工具](../scripts/experiments/measure-concurrency-experiment.ps1)、[桌面矩阵工具](../scripts/experiments/measure-concurrency-desktop.ps1)及[终核工具](../scripts/experiments/verify-concurrency-experiment.ps1)；参数与摘要口径见[基准说明](../tools/LocalDocSearch.Benchmarks/README.md#受限文件并发实验1--2--4)。本轮未生成新发布 ZIP，未替换当前浅目录应用，未 commit／push。后续选择以本报告的负载差异和资源边界为依据。

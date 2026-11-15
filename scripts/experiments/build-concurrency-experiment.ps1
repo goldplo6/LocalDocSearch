@@ -2,7 +2,7 @@
 [CmdletBinding()]
 param([string]$OutputRoot)
 $ErrorActionPreference='Stop'
-$root=(Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$root=(Resolve-Path (Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../artifacts'))) '..')).Path
 . (Join-Path $root 'scripts/release-common.ps1')
 if(-not $OutputRoot){$OutputRoot=Join-Path $root ('artifacts/concurrency-validation-'+[guid]::NewGuid().ToString('N'))}
 $OutputRoot=[IO.Path]::GetFullPath($OutputRoot)

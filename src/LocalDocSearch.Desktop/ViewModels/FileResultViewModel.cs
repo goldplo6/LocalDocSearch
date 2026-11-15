@@ -9,6 +9,7 @@ public sealed partial class FileResultViewModel : ObservableObject
 {
     private const int PageSize = 50;
     private readonly FileResult _file;
+    private bool _hasLoadedFirstPage;
     // Resolve presentation metadata on demand, then reuse it for repeated row bindings.
     private string? _fileName, _matchCountText, _modifiedText, _extensionLabel, _title;
 
@@ -18,7 +19,12 @@ public sealed partial class FileResultViewModel : ObservableObject
     public FileResultViewModel(FileResult file)
     {
         _file = file;
-        LoadMore();
+    }
+
+    partial void OnIsExpandedChanged(bool value)
+    {
+        // Keep initialization with the file, independent of recycled view containers.
+        if (value && !_hasLoadedFirstPage) LoadMore();
     }
 
     public string FullPath => _file.FullPath;
@@ -48,6 +54,8 @@ public sealed partial class FileResultViewModel : ObservableObject
     [RelayCommand]
     private void LoadMore()
     {
+        // A command invoked before expansion also initializes the first page.
+        _hasLoadedFirstPage = true;
         var end = Math.Min(VisibleMatches.Count + PageSize, _file.Matches.Count);
         while (VisibleMatches.Count < end)
             VisibleMatches.Add(new MatchViewModel(_file.Matches[VisibleMatches.Count], FullPath));

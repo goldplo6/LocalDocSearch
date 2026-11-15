@@ -3,7 +3,7 @@
 param([Parameter(Mandatory)][string]$BuildRecordPath)
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
-$root=(Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$root=(Resolve-Path (Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../artifacts'))) '..')).Path
 $build=Get-Content -LiteralPath $BuildRecordPath -Raw|ConvertFrom-Json
 if(-not $build.passed){throw 'A successful isolated regression build is required.'}
 $exe=(Resolve-Path -LiteralPath $build.desktopExe).Path
@@ -35,7 +35,7 @@ $record=[ordered]@{passed=$false;exe=$exe;exeSha256=$build.desktopSha256;desktop
 try{
  foreach($w in @(1,2,4)){
   Write-Host ('Native controls, workers='+$w)
-  $item=Child ('controls-w'+$w) 'artifacts/verify-concurrency-controls-uia.ps1' @('-ExePath',$exe,'-Workers',[string]$w,'-RuntimeRoot',$runtime)
+  $item=Child ('controls-w'+$w) 'scripts/experiments/verify-concurrency-controls-uia.ps1' @('-ExePath',$exe,'-Workers',[string]$w,'-RuntimeRoot',$runtime)
   $detail=Get-Content -LiteralPath $item.reportPath -Raw|ConvertFrom-Json
   if($detail.workers -ne $w -or $detail.exeSha256 -ne $build.desktopSha256 -or -not $detail.sourceFilesUnchanged -or @($detail.scenarios).Count -ne 4 -or @($detail.scenarios|Where-Object {-not $_.passed}).Count){throw 'Native control count or identity mismatch.'}
   $controls.Add([ordered]@{workers=$w;reportPath=$item.reportPath;reportSha256=(Get-FileHash -LiteralPath $item.reportPath).Hash;passed=$true})
@@ -45,7 +45,7 @@ try{
   $w=$sequence[$g]
   Write-Host ('UI timing group='+$g+', workers='+$w)
   if((Source-Sha) -ne $sourceBefore){throw 'Corpus changed before UI group.'}
-  $item=Child ('ui-g'+$g+'-w'+$w) 'artifacts/measure-concurrency-ui.ps1' @('-ExePath',$exe,'-Label',('g'+$g+'-w'+$w),'-Repeat','3','-Workers',[string]$w,'-RuntimeRoot',$runtime)
+  $item=Child ('ui-g'+$g+'-w'+$w) 'scripts/experiments/measure-concurrency-ui.ps1' @('-ExePath',$exe,'-Label',('g'+$g+'-w'+$w),'-Repeat','3','-Workers',[string]$w,'-RuntimeRoot',$runtime)
   $detail=Get-Content -LiteralPath $item.reportPath -Raw|ConvertFrom-Json
   if($detail.workers -ne $w -or $detail.exeSha256 -ne $build.desktopSha256 -or @($detail.rounds).Count -ne 3){throw 'UI group count or identity mismatch.'}
   foreach($row in $detail.rounds){if(-not $row.passed -or -not $row.ownedProcessClosed -or $row.files -ne 5000 -or $row.occurrences -ne 10000){throw 'UI round did not complete the original corpus.'};$samples.Add([pscustomobject]@{workers=$w;group=$g;round=$row})}

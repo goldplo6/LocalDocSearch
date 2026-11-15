@@ -29,8 +29,11 @@ public sealed class ResultScrollingTests(ITestOutputHelper output)
             list.ScrollIntoView(fileCount - 1);
             Settle(window);
             var expander = FileExpander(list, fileCount - 1);
+            Assert.False(vm.Results[^1].IsExpanded);
+            Assert.All(vm.Results, file => Assert.Empty(file.VisibleMatches));
             expander.SetCurrentValue(Expander.IsExpandedProperty, true);
             Settle(window);
+            Assert.Equal(50, vm.Results[^1].VisibleMatches.Count);
             output.WriteLine($"Expanded last file: {Describe(list)}; height={expander.Bounds.Height}");
             WheelToLoadedBottom(window, list, vm.Results[^1], fileCount - 1);
 
@@ -48,8 +51,10 @@ public sealed class ResultScrollingTests(ITestOutputHelper output)
         finally { window.Close(); }
     }
 
-    [AvaloniaFact]
-    public void RecycledFileReturnsExpandedWithoutExpandingAnotherFileAndStillReachesMatchBottom()
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void RecycledFileReturnsExpandedWithoutExpandingAnotherFileAndStillReachesMatchBottom(bool loadMoreBeforeRecycle)
     {
         var vm = CreateResults(500);
         var window = new MainWindow { DataContext = vm, Width = 850, Height = 640 };
@@ -63,7 +68,15 @@ public sealed class ResultScrollingTests(ITestOutputHelper output)
             var original = FileExpander(list, 499);
             original.SetCurrentValue(Expander.IsExpandedProperty, true);
             Settle(window);
+            Assert.Equal(50, vm.Results[^1].VisibleMatches.Count);
             WheelToLoadedBottom(window, list, vm.Results[^1], 499);
+            if (loadMoreBeforeRecycle)
+            {
+                ClickLoadMore(window, list, 499);
+                Assert.Equal(100, vm.Results[^1].VisibleMatches.Count);
+                WheelToLoadedBottom(window, list, vm.Results[^1], 499);
+            }
+            var loaded = vm.Results[^1].VisibleMatches.ToArray();
 
             list.ScrollIntoView(0);
             Settle(window);
@@ -77,7 +90,47 @@ public sealed class ResultScrollingTests(ITestOutputHelper output)
             Settle(window);
             var returned = FileExpander(list, 499);
             Assert.True(returned.IsExpanded, "The last file collapsed after its container was recycled.");
+            Assert.Equal(loadMoreBeforeRecycle ? 100 : 50, vm.Results[^1].VisibleMatches.Count);
+            for (var i = 0; i < loaded.Length; i++) Assert.Same(loaded[i], vm.Results[^1].VisibleMatches[i]);
+            Assert.All(vm.Results.Take(499), file => Assert.Empty(file.VisibleMatches));
             WheelToLoadedBottom(window, list, vm.Results[^1], 499);
+        }
+        finally { window.Close(); }
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ProgrammaticExpansionBeforeOrAfterRealizationLoadsOnlyOnePage(bool expandBeforeRealization)
+    {
+        var vm = CreateResults(1);
+        var file = vm.Results[0];
+        if (expandBeforeRealization) file.IsExpanded = true;
+        var window = new MainWindow { DataContext = vm, Width = 850, Height = 640 };
+        try
+        {
+            window.Show();
+            Settle(window);
+            var list = window.FindControl<ListBox>("ResultsList")!;
+            if (!expandBeforeRealization)
+            {
+                Assert.Empty(file.VisibleMatches);
+                file.IsExpanded = true;
+                Settle(window);
+            }
+            var expander = FileExpander(list, 0);
+            Assert.True(expander.IsExpanded);
+            Assert.Equal(50, file.VisibleMatches.Count);
+            var loaded = file.VisibleMatches.ToArray();
+            file.IsExpanded = false;
+            Settle(window);
+            Assert.False(expander.IsExpanded);
+            file.IsExpanded = true;
+            Settle(window);
+            Assert.True(expander.IsExpanded);
+            Assert.Equal(50, file.VisibleMatches.Count);
+            for (var i = 0; i < loaded.Length; i++) Assert.Same(loaded[i], file.VisibleMatches[i]);
+            WheelToLoadedBottom(window, list, file, 0);
         }
         finally { window.Close(); }
     }

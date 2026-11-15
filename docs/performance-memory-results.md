@@ -26,7 +26,7 @@
 
 日志首组波动较大，追加 `rc.6 → rc.7 → rc.7 → rc.6` 四个独立进程，每进程三轮。各版本六次采样的中位耗时为 582.65 → 519.68 ms，缩短 10.8%；中位累计分配 299,843,948 → 280,045,452 字节，减少 6.6%。这组补充不覆盖上表原始结果，日志耗时仍受进程启动、JIT、缓存及调度影响；混合格式保留前置检查开销，不据此宣称稳定加速。
 
-证据：[完整前后比较](../artifacts/performance-memory-comparison-52b31f2983874f79938f1c67c5dc1fab/results.json)、[rc.6 CLI 原始数据](../artifacts/performance-rc6-before-117b5d8f611946b6a73cafdc2b1c9b85/)、[rc.7 CLI 索引](../artifacts/performance-rc7-after-9b796a7298ed47a1aa6a7bf2fafcc798/index.json)、[旧窗口三轮](../artifacts/performance-ui-rc6-before-4b2d8ed9c165484b917b054ee9c6823c/results.json)、[新窗口三轮](../artifacts/performance-ui-rc7-after-ef936e80d99248528ddd002736edd5d0/results.json)、[日志交替原始数据](../artifacts/performance-log-balanced-84b518e43f3240b68881f29bd6847d70/results.json)及[六次采样汇总](../artifacts/performance-log-balanced-84b518e43f3240b68881f29bd6847d70/summary.json)。所有 CLI 场景的完成状态、扫描数、匹配数、发布数及错误/警告计数前后一致。
+证据：[完整前后比较](../artifacts/history/performance/performance-memory-comparison-52b31f2983874f79938f1c67c5dc1fab/results.json)、[rc.6 CLI 原始数据](../artifacts/history/performance/performance-rc6-before-117b5d8f611946b6a73cafdc2b1c9b85/)、[rc.7 CLI 索引](../artifacts/history/performance/performance-rc7-after-9b796a7298ed47a1aa6a7bf2fafcc798/index.json)、[旧窗口三轮](../artifacts/history/performance/performance-ui-rc6-before-4b2d8ed9c165484b917b054ee9c6823c/results.json)、[新窗口三轮](../artifacts/history/performance/performance-ui-rc7-after-ef936e80d99248528ddd002736edd5d0/results.json)、[日志交替原始数据](../artifacts/history/performance/performance-log-balanced-84b518e43f3240b68881f29bd6847d70/results.json)及[六次采样汇总](../artifacts/history/performance/performance-log-balanced-84b518e43f3240b68881f29bd6847d70/summary.json)。所有 CLI 场景的完成状态、扫描数、匹配数、发布数及错误/警告计数前后一致。
 
 ## 3. OOM 护栏及剩余边界
 
@@ -45,15 +45,15 @@
 
 最终独立快照构建 13 个项目，0 警告 / 0 错误。六套完整 TRX 共 **982 项通过、0 失败、0 跳过**：Core 452、Desktop 139、Extractors 134、Navigation 191、Settings 37、Benchmarks 29；较 rc.6 新增 44 项。覆盖字符预算精确/超一单位、UTF-16、整文件与全局原子性、预览互斥/排队取消/异常释放/来源变化、ZIP entry/总量/数量/取消/参数和 Append 前限制。旧预览测试仅调整等待顺序以适应新串行契约，原断言保留；NuGet 锁仅同步项目输出名，30 个实际 NuGet 依赖不变。
 
-[最终包审计](../artifacts/performance-memory-verified-1b37b5220c494012b54f90aefe93d7e3/final-audit.json)验证 178 份源码输入、13 份锁、解压前后 354 个文件原样、67 个文本/自有 PDB × 3 种路径形式零工作区路径泄漏、自带运行时 10.0.14。高级逻辑、正则、分组往返、125% DPI 四种结果面积、300 文档实际滚轮、四种响应预览及九帧 PE 图标均通过。结果面积为整窗 63.32% / 61.32% / 65.26% / 63.32%；300 文档 369 命中，166 次滚轮、73 次回收后推进，末 50/70 条可达且保持展开。预览 UIA 使用 Value 全文与应用内部 SelectedText 相等反馈，原 TextBox 直接选区断言另有覆盖；不把它描述为 UIA 独立读取选区。所有验收自有进程正常关闭，未操作剪贴板或外部阅读器。
+[最终包审计](../artifacts/history/performance/performance-memory-verified-1b37b5220c494012b54f90aefe93d7e3/final-audit.json)验证 178 份源码输入、13 份锁、解压前后 354 个文件原样、67 个文本/自有 PDB × 3 种路径形式零工作区路径泄漏、自带运行时 10.0.14。高级逻辑、正则、分组往返、125% DPI 四种结果面积、300 文档实际滚轮、四种响应预览及九帧 PE 图标均通过。结果面积为整窗 63.32% / 61.32% / 65.26% / 63.32%；300 文档 369 命中，166 次滚轮、73 次回收后推进，末 50/70 条可达且保持展开。预览 UIA 使用 Value 全文与应用内部 SelectedText 相等反馈，原 TextBox 直接选区断言另有覆盖；不把它描述为 UIA 独立读取选区。所有验收自有进程正常关闭，未操作剪贴板或外部阅读器。
 
 ## 5. 成品与 GitHub 状态
 
-当前直接启动：[DocSearch.exe](<C:/LocalDocSearch/DocSearch.exe>)。完整目录 354 个文件已逐哈希核对；原 rc.6 保留于 [完整备份目录](<C:/LocalDocSearch-previous-43ca74a9983a460ab243607df1442563/>)，没有关闭用户进程，见[浅目录更新报告](../artifacts/shallow-copy-rc7-43ca74a9983a460ab243607df1442563/results.json)。需整体保留解压目录中的 DLL、运行时、许可证及说明，不单独搬走 EXE。
+当时的浅目录入口为 `C:/LocalDocSearch/DocSearch.exe`，354 个文件曾逐哈希核对；原 rc.6 备份位于 `C:/LocalDocSearch-previous-43ca74a9983a460ab243607df1442563/`。这些浅目录后来已迁回工作区，旧备份已清理；当时未关闭用户进程，见[浅目录更新报告](../artifacts/history/maintenance/shallow-copy-rc7-43ca74a9983a460ab243607df1442563/results.json)。当前运行版本见 [rc10 优化报告](fixed-overhead-results.md)，启动时仍须整体保留所选版本的 DLL、运行时、许可证及说明。
 
-- [最终 rc.7 ZIP](../artifacts/releases-performance-memory-final/LocalDocSearch-1.0.0-rc.7-win-x64/LocalDocSearch-1.0.0-rc.7-win-x64.zip)，SHA256：`5f8ea1b552bc67de1bf4dabbf062c1da2da67569a6c55ae2e919015decfd37c2`。
+- `LocalDocSearch-1.0.0-rc.7-win-x64.zip`（原路径：`../artifacts/releases-performance-memory-final/LocalDocSearch-1.0.0-rc.7-win-x64/LocalDocSearch-1.0.0-rc.7-win-x64.zip`；历史包已清理；当前版本见 [rc10 优化报告](fixed-overhead-results.md)），SHA256：`5f8ea1b552bc67de1bf4dabbf062c1da2da67569a6c55ae2e919015decfd37c2`。
 - `DocSearch.exe` SHA256：`3a73f3225a2062b8221fe9a3c54814256c45f281f56ca16f700460ff76e05ced`。
-- [包内两份启动说明修正记录](../artifacts/performance-package-documents-809164ab80c442aca5413fc2a805af8d/results.json)：其余 351 个 manifest 文件及全部二进制原样，旧 ZIP 已保留，修正后重新生成 manifest、稳定 ZIP 和校验值并复验。
-- [最终文档与成品核对](../artifacts/performance-memory-verified-1b37b5220c494012b54f90aefe93d7e3/document-final-audit.json)。
+- [包内两份启动说明修正记录](../artifacts/history/performance/performance-package-documents-809164ab80c442aca5413fc2a805af8d/results.json)：其余 351 个 manifest 文件及全部二进制原样，旧 ZIP 已保留，修正后重新生成 manifest、稳定 ZIP 和校验值并复验。
+- [最终文档与成品核对](../artifacts/history/performance/performance-memory-verified-1b37b5220c494012b54f90aefe93d7e3/document-final-audit.json)。
 
 当前工作目录实际返回 `fatal: not a git repository (or any of the parent directories): .git`；没有可识别的 remote，[贡献说明](../CONTRIBUTING.md)也记录尚未配置公开仓库。因此本轮核实的是当前副本未连接 Git 仓库，尚无远端推送时间证据；没有创建仓库或推送。系统中文 IME、原生跨屏 DPI、真正干净机器、真实杀毒与签名/公开分发仍按既有路线另行验收；原文件自动填词继续停止调试。

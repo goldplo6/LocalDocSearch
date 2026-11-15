@@ -69,7 +69,7 @@ dotnet tools/LocalDocSearch.Benchmarks/bin/Release/net10.0/LocalDocSearch.Benchm
 dotnet tools/LocalDocSearch.Benchmarks/bin/Release/net10.0/LocalDocSearch.Benchmarks.dll control artifacts/phase-4-corpus-standard-64 mixed --workers 4
 
 # 所有测量进程严格串行；三个参数均可显式传入。
-pwsh -File artifacts/measure-concurrency-experiment.ps1 -BenchmarkDll tools/LocalDocSearch.Benchmarks/bin/Release/net10.0/LocalDocSearch.Benchmarks.dll -DotnetPath dotnet -CorpusRoot artifacts/phase-4-corpus-standard-64
+pwsh -File scripts/experiments/measure-concurrency-experiment.ps1 -BenchmarkDll tools/LocalDocSearch.Benchmarks/bin/Release/net10.0/LocalDocSearch.Benchmarks.dll -DotnetPath dotnet -CorpusRoot artifacts/phase-4-corpus-standard-64
 ```
 
 - 脚本复用 standard-64 原创语料（6453 个登记文件），不生成、修改或清理它。many-small、large-log、mixed、dense-file、global-budget 各按 **1,2,4,4,2,1** 顺序启动六个新进程，每进程 repeat 3，因此每个 workers 有 6 个性能样本。errors / literal-and / cancel 每个 workers 额外各跑一组 repeat 1 语义验证。`dense-file` 是现有密集文件预算场景名。

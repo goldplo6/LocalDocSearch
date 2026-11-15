@@ -1,13 +1,13 @@
 param([Parameter(Mandatory=$true)][string]$ExePath,[Parameter(Mandatory=$true)][string]$Label,[int]$Repeat=3,[Parameter(Mandatory=$true)][ValidateSet(1,2,4)][int]$Workers,[string]$RuntimeRoot)
 $ErrorActionPreference='Stop'
-$workspace=(Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$workspace=(Resolve-Path (Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../artifacts'))) '..')).Path
 $exe=(Resolve-Path -LiteralPath $ExePath).Path
 if(-not $exe.StartsWith($workspace+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Benchmark EXE must belong to this workspace.'}
 if($Repeat -lt 1 -or $Repeat -gt 5){throw 'Repeat must be 1..5.'}
 $runtime='C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\6.0.11'
 Add-Type -Path (Join-Path $runtime 'UIAutomationTypes.dll')
 Add-Type -Path (Join-Path $runtime 'UIAutomationClient.dll')
-$output=Join-Path $PSScriptRoot ('concurrency-ui-'+$Label+'-'+[guid]::NewGuid().ToString('N'))
+$output=Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../artifacts'))) ('concurrency-ui-'+$Label+'-'+[guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $output|Out-Null
 $rows=[Collections.Generic.List[object]]::new()
 $script:owned=$null

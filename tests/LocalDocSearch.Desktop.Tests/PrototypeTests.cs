@@ -58,6 +58,9 @@ public sealed class PrototypeTests
         var matches = Enumerable.Range(1, 123)
             .Select(i => new MatchItem("西瓜", "", "西瓜", "", new SourceLocation(i, 1))).ToArray();
         var vm = new FileResultViewModel(new FileResult("demo.txt", ".txt", DateTime.UtcNow, matches));
+        Assert.False(vm.IsExpanded);
+        Assert.Empty(vm.VisibleMatches);
+        vm.IsExpanded = true;
         Assert.Equal(50, vm.VisibleMatches.Count);
         Assert.Equal(123, vm.TotalOccurrences);
         Assert.True(vm.HasMore);

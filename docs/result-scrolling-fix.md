@@ -19,7 +19,7 @@
 
 ## 自动化回归
 
-隔离输出完整桌面回归 **56/56 通过，0 失败、0 跳过**，证据：[desktop-final.trx](../artifacts/scroll-fix-validation/results/desktop-final.trx)。其中本轮 6 项覆盖：
+隔离输出完整桌面回归 **56/56 通过，0 失败、0 跳过**，证据：[desktop-final.trx](../artifacts/history/builds/scroll-fix-validation/results/desktop-final.trx)。其中本轮 6 项覆盖：
 
 - 1、300、10,000 文件，实际指针滚轮推进内外层列表，末条匹配和整个匹配列表处于可见视口；到底后额外 8 次滚轮仍展开。
 - 每次用鼠标实际点击可见加载按钮，分别检查 50 → 100 → 123 处，而不是直接调用两次命令跳过中间布局；全部加载后按钮仍可见且禁用。
@@ -35,9 +35,9 @@
 
 | 文档数 / 总匹配数 | 真实滚轮消息 | 回收后到末条 | 证据 |
 |---|---:|---:|---|
-| 100 / 169 | 246 | 113 次 | [100 文档结果](../artifacts/result-wheel-99593010817a49e78e78cc0a115bc807/results.json) |
-| 300 / 369 | 246 | 113 次 | [300 文档结果](../artifacts/result-wheel-1cf4df8b15b5470dbd04a0497be0fea1/results.json) |
-| rc.2 实际解压包，300 / 369 | 246 | 113 次 | [分发包滚动结果](../artifacts/result-wheel-14097b2289f54f599404ab276e284356/results.json) |
+| 100 / 169 | 246 | 113 次 | [100 文档结果](../artifacts/history/search/result-wheel-99593010817a49e78e78cc0a115bc807/results.json) |
+| 300 / 369 | 246 | 113 次 | [300 文档结果](../artifacts/history/search/result-wheel-1cf4df8b15b5470dbd04a0497be0fea1/results.json) |
+| rc.2 实际解压包，300 / 369 | 246 | 113 次 | [分发包滚动结果](../artifacts/history/search/result-wheel-14097b2289f54f599404ab276e284356/results.json) |
 
 两组源文件 hash/修改时间均未改变，自有进程均正常关闭。此前探针回收后最多发送 85 次滚轮，只滚到第 54 条便报失败；诊断中滚动条实际已推进 4250/5688。把有限上限调整为 160 后，两组均在第 113 次到达第 70 条。此处是探针预算不足，未为该失败追加产品补丁；末条可见、保持展开及来源不变的断言保留。
 
@@ -47,10 +47,10 @@
 
 候选已完成隔离源码快照、源锁定还原、13 项目 Release 构建、6 项目完整回归、候选 RID 锁定还原、自带运行时发布和独立 ZIP 校验。完整回归 **689/689 通过，0 失败、0 跳过**：Core 263、Extractors 113、Settings 37、Navigation 191、Desktop 56、Benchmarks 29。历史 rc.1 保留。
 
-- [Windows x64 rc.2 ZIP](../artifacts/releases-scroll-fix/LocalDocSearch-1.0.0-rc.2-win-x64/LocalDocSearch-1.0.0-rc.2-win-x64.zip)：解压整个目录后运行其中的 `LocalDocSearch.Desktop.exe`，保留相邻文件。包含 .NET 10.0.14 运行时和原创样本。
-- SHA256：`cf01d290cde59a5a61f19f424581d63854687bcef3ed4b6a9480483ce7ba35a6`。另见 [SHA256SUMS](../artifacts/releases-scroll-fix/LocalDocSearch-1.0.0-rc.2-win-x64/SHA256SUMS.txt)。
-- [最终独立审计](../artifacts/scroll-rc2-verified-9bb62facd0e14950a3b02266aceef195/final-audit.json)：353 条文件清单加清单自身共 354 个文件，运行前后逐项哈希/长度与文件集合一致；143 项源码输入与当前工作区匹配、13 份源锁已记录；67 份文本/自有 PDB 按 Windows、斜杠、JSON 转义三种工作区路径形式扫描，0 命中。
-- [解压包实窗结果](../artifacts/phase-5-package-uia-d814a4b28abc4c79adab15ba95ffcb67/results.json)：将 `DOTNET_ROOT`/`DOTNET_ROOT_X64` 指向不存在的测试目录，关闭多级查找，独立核验进程加载的是解压目录内的 `coreclr.dll`。公式为 `(西瓜 AND 苹果) OR 荔枝` 时 3 文件/5 处，切换已存连接为全 OR 后 4 文件/6 处。
+- `LocalDocSearch-1.0.0-rc.2-win-x64.zip`（原路径：`../artifacts/releases-scroll-fix/LocalDocSearch-1.0.0-rc.2-win-x64/LocalDocSearch-1.0.0-rc.2-win-x64.zip`；历史包已清理；当前版本见 [rc10 优化报告](fixed-overhead-results.md)）：解压整个目录后运行其中的 `LocalDocSearch.Desktop.exe`，保留相邻文件。包含 .NET 10.0.14 运行时和原创样本。
+- SHA256：`cf01d290cde59a5a61f19f424581d63854687bcef3ed4b6a9480483ce7ba35a6`。另见 [SHA256SUMS](../artifacts/history/releases/releases-scroll-fix/LocalDocSearch-1.0.0-rc.2-win-x64/SHA256SUMS.txt)。
+- [最终独立审计](../artifacts/history/search/scroll-rc2-verified-9bb62facd0e14950a3b02266aceef195/final-audit.json)：353 条文件清单加清单自身共 354 个文件，运行前后逐项哈希/长度与文件集合一致；143 项源码输入与当前工作区匹配、13 份源锁已记录；67 份文本/自有 PDB 按 Windows、斜杠、JSON 转义三种工作区路径形式扫描，0 命中。
+- [解压包实窗结果](../artifacts/history/search/phase-5-package-uia-d814a4b28abc4c79adab15ba95ffcb67/results.json)：将 `DOTNET_ROOT`/`DOTNET_ROOT_X64` 指向不存在的测试目录，关闭多级查找，独立核验进程加载的是解压目录内的 `coreclr.dll`。公式为 `(西瓜 AND 苹果) OR 荔枝` 时 3 文件/5 处，切换已存连接为全 OR 后 4 文件/6 处。
 - 三种窗口尺寸及最小尺寸 64 个长词下，结果区占整窗分别为 **64.36%、70.55%、73.51%、64.36%**，DPI 为 120。截图已保存；本环境图像读取接口未返回图像，未声明完成截图视觉审阅。面积与可见性结论来自实际窗口/UIA 几何及输入结果。
 
 UIA 的 .NET 6 程序集仅供测试脚本使用，产品没有新增该运行依赖。解压运行证明本机自带运行时路径有效，不替代真正干净 Windows 环境验收。

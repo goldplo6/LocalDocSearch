@@ -1,6 +1,6 @@
 # 清爽专业桌面界面实施计划
 
-日期：2026-11-12。状态：已完成。用户已批准[独立设计 Demo](../artifacts/ui-design-demo/index.html)，本阶段已将其视觉层级落实到 Avalonia 桌面程序。基于 rc.4 的 909 项回归，rc.5 现已通过 927 项完整测试、独立解压实窗及响应预览四场景。交付与证据见[验收报告](design-refresh-results.md)。
+日期：2026-11-12。状态：已完成。用户已批准[独立设计 Demo](../artifacts/history/ui/ui-design-demo/index.html)，本阶段已将其视觉层级落实到 Avalonia 桌面程序。基于 rc.4 的 909 项回归，rc.5 现已通过 927 项完整测试、独立解压实窗及响应预览四场景。交付与证据见[验收报告](design-refresh-results.md)。
 
 ## 设计与范围
 

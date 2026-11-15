@@ -24,8 +24,11 @@ public static class BenchmarkCli
                         "control <owned-root> <many-small|mixed> [--workers 1|2|4] [--output new-json-file]",
                         "literal-prepare <new-root> [--quick]",
                         "literal-run <owned-root> <scenario> [--repeat 1..20] [--output new-json-file]",
+                        "csv-prepare <new-root> [--quick]",
+                        "csv-run <owned-root> <scenario> [--repeat 1..20] [--output new-json-file]",
                         "overhead-coordinates [--repeat 1..20] [--iterations 1..20000000] [--output new-json-file]" },
-                    scenarios = BenchmarkCorpus.ScenarioNames, omittedFields = BenchmarkRunner.OmittedFields
+                    scenarios = BenchmarkCorpus.ScenarioNames, csvScenarios = CsvParsingBenchmark.Scenarios,
+                    omittedFields = BenchmarkRunner.OmittedFields
                 }));
                 return 0;
             }
@@ -65,6 +68,43 @@ public static class BenchmarkCli
             }
             if (args.Length < 2) throw new BenchmarkException("invalid-arguments");
             string command = args[0], root = args[1];
+            if (command is "csv-prepare" or "csv-run")
+            {
+                if (command == "csv-prepare")
+                {
+                    if (args.Length > 3 || args.Length == 3 && args[2] != "--quick")
+                        throw new BenchmarkException("invalid-arguments");
+                    var manifest = CsvParsingBenchmark.Prepare(root, args.Length == 3);
+                    await output.WriteLineAsync(BenchmarkJson.Serialize(new { passed = true, manifest,
+                        scenarios = CsvParsingBenchmark.Scenarios }));
+                    return 0;
+                }
+                if (args.Length < 3) throw new BenchmarkException("invalid-arguments");
+                CsvParsingBenchmark.Expected(args[2], true);
+                scenario = args[2];
+                int csvRepeat = 3;
+                string? csvOutput = null;
+                var csvSeen = new HashSet<string>(StringComparer.Ordinal);
+                for (int index = 3; index < args.Length; index++)
+                {
+                    if (!csvSeen.Add(args[index])) throw new BenchmarkException("duplicate-option");
+                    if (args[index] == "--repeat") csvRepeat = IntegerOption(args, ref index);
+                    else if (args[index] == "--output" && ++index < args.Length)
+                        csvOutput = ValidateOutputPath(root, args[index]);
+                    else throw new BenchmarkException("unknown-or-incomplete-option");
+                }
+                var csvReport = await CsvParsingBenchmark.RunAsync(root, scenario, csvRepeat).ConfigureAwait(false);
+                string csvJson = BenchmarkJson.Serialize(csvReport);
+                if (csvOutput is not null)
+                {
+                    BenchmarkCorpus.AssertOrdinaryAncestors(csvOutput);
+                    using var stream = new FileStream(csvOutput, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+                    using var writer = new StreamWriter(stream, new UTF8Encoding(false));
+                    await writer.WriteAsync(csvJson).ConfigureAwait(false);
+                }
+                await output.WriteLineAsync(csvJson);
+                return csvReport.Passed ? 0 : 2;
+            }
             if (command is "literal-prepare" or "literal-run")
             {
                 if (command == "literal-prepare")

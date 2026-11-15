@@ -3,7 +3,7 @@
 param([Parameter(Mandatory)][string]$BuildRecordPath,[Parameter(Mandatory)][string]$CliSummaryPath,[Parameter(Mandatory)][string]$DesktopSummaryPath,[Parameter(Mandatory)][string]$MachinePath)
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
-$root=(Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$root=(Resolve-Path (Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../artifacts'))) '..')).Path
 $build=Get-Content -LiteralPath $BuildRecordPath -Raw|ConvertFrom-Json
 $cli=Get-Content -LiteralPath $CliSummaryPath -Raw|ConvertFrom-Json
 $desktop=Get-Content -LiteralPath $DesktopSummaryPath -Raw|ConvertFrom-Json

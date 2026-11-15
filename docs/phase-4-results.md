@@ -37,7 +37,7 @@
 
 保留原有搜索、编码、范围和导航回归。新增覆盖预算临界值/超一项、错误洪流、来源变化、文件原子性、跨缓冲换行和中文/代理对、背压取消、批量重排、匹配视口、辅助功能名称以及基准所有权/完整性。文本读法另以平台行读取结果为独立小样本对照，覆盖 CR、LF、CRLF、空行、末行和缓冲边界。
 
-完整测试产物在[TRX 目录](../artifacts/test-results)，本次 TRX 文件名的时间戳为 2026-11-09 11:42:27–11:42:37。Windows 文件系统实测与真实窗口验收另列，未计入 478 项。
+完整测试产物在[TRX 目录](../artifacts/history/builds/test-results)，本次 TRX 文件名的时间戳为 2026-11-09 11:42:27–11:42:37。Windows 文件系统实测与真实窗口验收另列，未计入 478 项。
 
 ## 原创语料与测量口径
 
@@ -46,8 +46,8 @@
 | 语料 | 数据文件数 | 数据字节 | 主日志行数 / 匹配处数 |
 |---|---:|---:|---:|
 | [standard-64](../artifacts/phase-4-corpus-standard-64) | 6,453 | 71,756,853 | 633,098 / 78 |
-| [quick-128](../artifacts/phase-4-corpus-quick-128) | 1,558 | 138,572,589 | 1,266,195 / 155 |
-| [quick-256](../artifacts/phase-4-corpus-quick-256) | 1,558 | 272,790,319 | 2,532,390 / 310 |
+| [quick-128](../artifacts/history/performance/phase-4-corpus-quick-128) | 1,558 | 138,572,589 | 1,266,195 / 155 |
+| [quick-256](../artifacts/history/performance/phase-4-corpus-quick-256) | 1,558 | 272,790,319 | 2,532,390 / 310 |
 
 各目录另有两份控制文件。64/128/256 MiB 是日志生成目标，实际日志为 67,108,934 / 134,217,755 / 268,435,510 字节。正常小文件场景为 5,000 份文件、10,000 处；混合目录为 25 套八格式、200 份文件、400 处。
 
@@ -57,7 +57,7 @@
 
 ## 最终 Core 基准
 
-12 组最终场景，每组三轮，预期状态、文件数、处数和原始问题数均符合。原始证据见[最终汇总](../artifacts/phase-4-core-benchmark-final-summary.json)及[逐场景报告](../artifacts/phase-4-metrics)。表中耗时为毫秒，内存单位为 MiB。
+12 组最终场景，每组三轮，预期状态、文件数、处数和原始问题数均符合。原始证据见[最终汇总](../artifacts/history/records/phase-4-core-benchmark-final-summary.json)及[逐场景报告](../artifacts/history/performance/phase-4-metrics)。表中耗时为毫秒，内存单位为 MiB。
 
 | 场景 | 首轮 | 重复中位数 | 首轮首文件 | 进程生命周期峰值 | 分配中位数 | 完整文件 / 处数 |
 |---|---:|---:|---:|---:|---:|---:|
@@ -83,7 +83,7 @@ Core 取消场景首轮从同步首文件回调请求到结束为 **2.71 ms**；
 
 ### 与第三阶段的比较及已处理回退
 
-保留第三阶段二进制，用独立[旧 API 基线工具](../artifacts/phase-4-baseline/harness/Program.cs)测量相同文本语料、关键词、上下文 0 与三轮口径。旧版只测原有正常文本能力，不拿新超限行为作速度对照。
+保留第三阶段二进制，用独立[旧 API 基线工具](../artifacts/history/performance/phase-4-baseline/harness/Program.cs)测量相同文本语料、关键词、上下文 0 与三轮口径。旧版只测原有正常文本能力，不拿新超限行为作速度对照。
 
 | 正常文本场景 | 第三阶段重复 ms | 第四阶段最终重复 ms |
 |---|---:|---:|
@@ -92,7 +92,7 @@ Core 取消场景首轮从同步首文件回调请求到结束为 **2.71 ms**；
 | 128 MiB 日志 | 541.60 | 716.61 |
 | 256 MiB 日志 | 1,189.45 | 1,255.01 |
 
-本机数据未显示整体加速。新增预算与来源稳定性检查伴随额外成本；尚未分离每一项检查的单独成本。第一版第四阶段小文件重复为 1,620.01 ms、累计分配 491.53 MiB；发现每文件固定大缓冲分配后改为缓冲池、小初始 builder 与分隔符快速扫描，最终为 1,354.02 ms、337.64 MiB。初版及旧版结果完整保留于[初次汇总](../artifacts/phase-4-core-benchmark-summary.json)，没有用最终结果覆盖。下一轮优化应据 profile 继续定位，而非据这组数宣称全面提速。
+本机数据未显示整体加速。新增预算与来源稳定性检查伴随额外成本；尚未分离每一项检查的单独成本。第一版第四阶段小文件重复为 1,620.01 ms、累计分配 491.53 MiB；发现每文件固定大缓冲分配后改为缓冲池、小初始 builder 与分隔符快速扫描，最终为 1,354.02 ms、337.64 MiB。初版及旧版结果完整保留于[初次汇总](../artifacts/history/records/phase-4-core-benchmark-summary.json)，没有用最终结果覆盖。下一轮优化应据 profile 继续定位，而非据这组数宣称全面提速。
 
 二进制 SHA-256：
 
@@ -105,9 +105,9 @@ Core 取消场景首轮从同步首文件回调请求到结束为 **2.71 ms**；
 
 ## 真实桌面验收
 
-[UIA 验收脚本](../artifacts/phase-4-uia-smoke.ps1)启动实际 Release 窗口，以独立配置隔离用户偏好。最终[窗口验收数据](../artifacts/phase-4-desktop-uia.json)记录进程 42712、DPI 120（125%），仅代表本机这一个 DPI 点。
+[UIA 验收脚本](../artifacts/history/tools/phase-4-uia-smoke.ps1)启动实际 Release 窗口，以独立配置隔离用户偏好。最终[窗口验收数据](../artifacts/history/records/phase-4-desktop-uia.json)记录进程 42712、DPI 120（125%），仅代表本机这一个 DPI 点。
 
-另以[启动脚本](../artifacts/phase-4-startup-uia.ps1)单独测量三个新进程：从进程启动请求到 UIA 读到启用的设置按钮和目录输入框，分别为 **1,570.68 / 1,441.38 / 1,385.49 ms**，中位数 **1,441.38 ms**。含 20 ms 轮询开销，未清 OS 缓存，亦不代表首次安装后的冷启动。每轮使用独立配置，三个进程均正常关闭，数据见[启动结果](../artifacts/phase-4-startup-uia.json)。
+另以[启动脚本](../artifacts/history/tools/phase-4-startup-uia.ps1)单独测量三个新进程：从进程启动请求到 UIA 读到启用的设置按钮和目录输入框，分别为 **1,570.68 / 1,441.38 / 1,385.49 ms**，中位数 **1,441.38 ms**。含 20 ms 轮询开销，未清 OS 缓存，亦不代表首次安装后的冷启动。每轮使用独立配置，三个进程均正常关闭，数据见[启动结果](../artifacts/history/records/phase-4-startup-uia.json)。
 
 | 操作 | 窗口自身端到端耗时 | 最长观察刷新间隔 | 结果 |
 |---|---:|---:|---|
@@ -127,7 +127,7 @@ UIA 外部从取消命令到观察到完成为 **61.36 ms**，含命令与 60 ms
 
 ## Windows 文件系统与异常隔离
 
-[文件系统脚本](../artifacts/phase-4-filesystem-probe.ps1)只在独立原创目录施加 NTFS ACL 和目录联接，使用[小型只读探针](../artifacts/phase-4-filesystem-probe/Program.cs)调用正式 Core。最终[文件系统结果](../artifacts/phase-4-filesystem.json)六组均通过：
+[文件系统脚本](../artifacts/history/tools/phase-4-filesystem-probe.ps1)只在独立原创目录施加 NTFS ACL 和目录联接，使用[小型只读探针](../artifacts/history/performance/phase-4-filesystem-probe/Program.cs)调用正式 Core。最终[文件系统结果](../artifacts/history/records/phase-4-filesystem.json)六组均通过：
 
 - **460 个 UTF-16 单元的完整中文路径**：正常搜索，1 文件 / 1 处，Completed。
 - **真实 NTFS junction 目录循环**：链接被跳过，不重复遍历；正常文件 1 / 1，Partial，问题 1。
@@ -148,7 +148,7 @@ UIA 外部从取消命令到观察到完成为 **61.36 ms**，含命令与 60 ms
 ./.tools/dotnet/dotnet.exe tools/LocalDocSearch.Benchmarks/bin/Release/net10.0/LocalDocSearch.Benchmarks.dll run artifacts/repro-owned errors --repeat 3 --output artifacts/repro-errors.json
 ```
 
-[顺序运行记录脚本](../artifacts/phase-4-run-benchmarks.ps1)及所有原始报告保留供审计；固定输出已有时会停止，再次测量请换新输出名，不清除原证据。当前窗口、文件系统脚本也保留已存在报告，避免覆盖。
+[顺序运行记录脚本](../artifacts/history/tools/phase-4-run-benchmarks.ps1)及所有原始报告保留供审计；固定输出已有时会停止，再次测量请换新输出名，不清除原证据。当前窗口、文件系统脚本也保留已存在报告，避免覆盖。
 
 ## 后续边界
 

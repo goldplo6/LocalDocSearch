@@ -25,7 +25,7 @@ try {
     switch ($Action) {
         'Restore' { return }
         'Build' { & $taskDotnet build LocalDocSearch.slnx -c Release --no-restore }
-        'Test' { & $taskDotnet test LocalDocSearch.slnx -c Release --no-restore --logger 'trx' --results-directory (Join-Path $taskRoot 'artifacts/test-results') }
+        'Test' { & $taskDotnet test LocalDocSearch.slnx -c Release --no-restore --logger 'trx' --results-directory (Join-Path $taskRoot 'artifacts/history/builds/test-results') }
         'Run' { & $taskDotnet run --project src/LocalDocSearch.Desktop -c Release --no-restore }
         'Publish' { & $taskDotnet publish src/LocalDocSearch.Desktop -c Release --no-restore -o (Join-Path $taskRoot 'artifacts/publish') }
     }

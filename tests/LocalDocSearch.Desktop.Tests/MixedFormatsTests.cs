@@ -22,6 +22,7 @@ public sealed class MixedFormatsTests
             Assert.False(vm.IsBusy);
             Assert.Equal(8, vm.Results.Count);
             Assert.Equal(16, vm.Results.Sum(f => f.TotalOccurrences));
+            foreach (var file in vm.Results) file.IsExpanded = true;
             var excel = Assert.Single(vm.Results, f => f.FullPath.EndsWith(".xlsx"));
             Assert.Contains(excel.VisibleMatches, m => m.Position.Contains("Sheet2") && m.Position.Contains("B15"));
             var slide = Assert.Single(vm.Results, f => f.FullPath.EndsWith(".pptx"));

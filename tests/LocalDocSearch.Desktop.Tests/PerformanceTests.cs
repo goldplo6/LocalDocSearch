@@ -30,6 +30,10 @@ public sealed class PerformanceTests
         Assert.Same(file.ModifiedText, file.ModifiedText);
         Assert.Same(file.Title, file.Title);
         Assert.True(file.IsWordFile);
+        Assert.False(file.IsExpanded);
+        Assert.Empty(file.VisibleMatches);
+        Assert.Same(matches[0], file.FirstMatch);
+        file.IsExpanded = true;
         Assert.Equal(50, file.VisibleMatches.Count);
         Assert.Same(matches[0], file.VisibleMatches[0].SourceMatch);
         Assert.True(file.HasMore);

@@ -37,7 +37,7 @@
 
 ## 独立解压后的真实窗口
 
-[包级总报告](../artifacts/advanced-search-verified-f97ffcb1cf8b48018a85f6801bbf560a/final-audit.json)通过。测试仅操作自有进程、独立设置和原创语料，未触碰剪贴板或外部阅读器。指定不存在的共享 DOTNET_ROOT，并核实实际加载解压包内 coreclr；UIA 工具的 .NET 6 依赖仅用于探针，产品自带 .NET 10.0.14。
+[包级总报告](../artifacts/history/search/advanced-search-verified-f97ffcb1cf8b48018a85f6801bbf560a/final-audit.json)通过。测试仅操作自有进程、独立设置和原创语料，未触碰剪贴板或外部阅读器。指定不存在的共享 DOTNET_ROOT，并核实实际加载解压包内 coreclr；UIA 工具的 .NET 6 依赖仅用于探针，产品自带 .NET 10.0.14。
 
 | 操作 | 实测结果 |
 |---|---|
@@ -50,15 +50,15 @@
 | `(?<=订单 )A\d{2}` | 一文件、一处 |
 | 来源预览 | 正文“订单 A12 A34”，行 1、列 4、3 字符，应用 SelectedText 读回一致 |
 
-[高级实窗报告](../artifacts/advanced-search-uia-3055dce0735d476bad8ac0c29a9d96a6/results.json)包含操作值和截图路径。本控件没有提供原生 UIA TextPattern，因此预览证据采用 UIA ValuePattern 正文、来源坐标和应用实际 SelectedText 相等性读回；没有宣称通过 UIA 独立读取原生选区。高级集成测试另核验正则真实命中经过 MatchPreviewLoader 后的偏移/长度及 fake Find 收到实际文字；既有预览控件测试检查 TextBox.SelectedText。
+[高级实窗报告](../artifacts/history/search/advanced-search-uia-3055dce0735d476bad8ac0c29a9d96a6/results.json)包含操作值和截图路径。本控件没有提供原生 UIA TextPattern，因此预览证据采用 UIA ValuePattern 正文、来源坐标和应用实际 SelectedText 相等性读回；没有宣称通过 UIA 独立读取原生选区。高级集成测试另核验正则真实命中经过 MatchPreviewLoader 后的偏移/长度及 fake Find 收到实际文字；既有预览控件测试检查 TextBox.SelectedText。
 
-[分组实窗回归](../artifacts/query-grouping-uia-f4fed36142274d068709eafa235e26a7/results.json)通过：平面 5 文件/10 处 → 分组 3/7 → 嵌套 3/7 → 取消两层 5/10 → 重复词追加 OR 后 6/11。非相邻选项报错、字面量、取消、待添加输入禁用应用和偏好排除查询均通过。
+[分组实窗回归](../artifacts/history/search/query-grouping-uia-f4fed36142274d068709eafa235e26a7/results.json)通过：平面 5 文件/10 处 → 分组 3/7 → 嵌套 3/7 → 取消两层 5/10 → 重复词追加 OR 后 6/11。非相邻选项报错、字面量、取消、待添加输入禁用应用和偏好排除查询均通过。
 
-[原公式与布局报告](../artifacts/phase-5-package-uia-736342ac73cf49a5aa7005fdc7431ac7/results.json)通过；本机 DPI 120，三尺寸和最小窗口 64 词时，结果区占整窗 64.36%—73.51%。[300 文档实际滚轮](../artifacts/result-wheel-8038db9d5afe471ea9c553e246bd4632/results.json)通过：300 文件、369 处，246 次滚轮消息，末文件 50/70 处可达、触底保持展开，真实虚拟化回收后仍展开并可达末条；回收后使用 113 次、预算 160。
+[原公式与布局报告](../artifacts/history/search/phase-5-package-uia-736342ac73cf49a5aa7005fdc7431ac7/results.json)通过；本机 DPI 120，三尺寸和最小窗口 64 词时，结果区占整窗 64.36%—73.51%。[300 文档实际滚轮](../artifacts/history/search/result-wheel-8038db9d5afe471ea9c553e246bd4632/results.json)通过：300 文件、369 处，246 次滚轮消息，末文件 50/70 处可达、触底保持展开，真实虚拟化回收后仍展开并可达末条；回收后使用 113 次、预算 160。
 
 源码输入 158 项和 13 份源锁文件与构建记录一致；解压包 354 文件运行前后集合、长度和哈希一致；67 份文本/自有 PDB 的三种路径形式扫描为 0 泄漏。所有测试进程正常退出，源语料保持哈希、长度及修改时间。截图已保存，当前图像工具返回模型未声明图像输入，未完成视觉审阅；实际操作值和几何由 UIA 验证。
 
-[文档终核](../artifacts/advanced-search-verified-f97ffcb1cf8b48018a85f6801bbf560a/document-final-audit.json)另检查 7 份交付文档的本地链接、源码/锁文件、包内使用说明、探针及 ZIP 哈希，并确认没有遗留自有测试进程。
+[文档终核](../artifacts/history/search/advanced-search-verified-f97ffcb1cf8b48018a85f6801bbf560a/document-final-audit.json)另检查 7 份交付文档的本地链接、源码/锁文件、包内使用说明、探针及 ZIP 哈希，并确认没有遗留自有测试进程。
 
 ## 探针修正记录
 
@@ -66,7 +66,7 @@
 
 ## 候选与下一阶段
 
-交付 [LocalDocSearch-1.0.0-rc.4-win-x64.zip](../artifacts/releases-advanced-search/LocalDocSearch-1.0.0-rc.4-win-x64/LocalDocSearch-1.0.0-rc.4-win-x64.zip)，自带运行时 10.0.14，保留 rc.3。SHA256：
+交付 `LocalDocSearch-1.0.0-rc.4-win-x64.zip`（原路径：`../artifacts/releases-advanced-search/LocalDocSearch-1.0.0-rc.4-win-x64/LocalDocSearch-1.0.0-rc.4-win-x64.zip`；历史包已清理；当前版本见 [rc10 优化报告](fixed-overhead-results.md)），自带运行时 10.0.14，保留 rc.3。SHA256：
 
 ```text
 574befee52084a1f10a93982e06c12138c25aa64ef0533161e5ccc50d1f12cfa

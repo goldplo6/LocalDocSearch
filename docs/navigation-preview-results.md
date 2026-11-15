@@ -35,7 +35,7 @@
 
 六组均超过 60%。尺寸为缩放操作的目标逻辑尺寸，最小尺寸约束和系统边框以实际测量为准。另有相同三尺寸、64 个长词的 Avalonia 布局回归。
 
-实际面积及预览记录：[UIA v2 报告](../artifacts/navigation-preview-uia-v2.json)。早期报告把 UIA 根窗口边界当作外框，不能用于外框比例结论；本表仅使用 v2 的 Win32 外框测量。截图已保存，未作人工视觉审阅；多 DPI 和完整键盘/IME 体验继续留待专项验收。
+实际面积及预览记录：[UIA v2 报告](../artifacts/history/records/navigation-preview-uia-v2.json)。早期报告把 UIA 根窗口边界当作外框，不能用于外框比例结论；本表仅使用 v2 的 Win32 外框测量。截图已保存，未作人工视觉审阅；多 DPI 和完整键盘/IME 体验继续留待专项验收。
 
 ## 3. 可直接打开的超长文档
 
@@ -79,9 +79,9 @@ Word 的内容分页不是对任意字体和打印环境的实际排版页数承
 
 实机发现 Word `Find` 对恰好等长的短范围可能返回 false，或跳到范围外下一同词。对照记录中，0–2 的“原创”漏查，640–642 的第二个“苹果”跳到 645–647；只把查找探针右界增加一个字符、且不越已核验段落，恢复了预期起点。完整选择范围保持原始命中边界，仍核验段落、唯一上下文、起点、长度和完整文字，另补 5 个边界回归。
 
-[最终严格实机记录](../artifacts/native-selection-2d6cc76f6aa64d00baa0e00a66eb9a14/navigation-selection-report.json)中，6 个 `Exact` 均有独立位置与文字证据；歧义例 `IndependentAgreement=false`、`SelectionUnchanged=true`，不把上一处同词选区算作新目标成功。源文件及制备后的副本 SHA256、长度与修改时间全部不变。
+[最终严格实机记录](../artifacts/history/navigation/native-selection-2d6cc76f6aa64d00baa0e00a66eb9a14/navigation-selection-report.json)中，6 个 `Exact` 均有独立位置与文字证据；歧义例 `IndependentAgreement=false`、`SelectionUnchanged=true`，不把上一处同词选区算作新目标成功。源文件及制备后的副本 SHA256、长度与修改时间全部不变。
 
-三个测试副本均正常关闭，既有 Word/Excel 窗口保持。探针因 COM 句柄读取失败保留了测试创建的空 PowerPoint 实例；父流程随后按已记录的 PID、精确启动时间、实际主窗句柄及空白标题再次核验，调用 `CloseMainWindow` 正常退出。没有强制终止进程或关闭其它 Office 窗口，见[独立清理记录](../artifacts/navigation-probe-cleanup.json)。本轮验证的是预先只读打开的普通 Office 副本，未把它等同于新开保护视图下的选择能力。
+三个测试副本均正常关闭，既有 Word/Excel 窗口保持。探针因 COM 句柄读取失败保留了测试创建的空 PowerPoint 实例；父流程随后按已记录的 PID、精确启动时间、实际主窗句柄及空白标题再次核验，调用 `CloseMainWindow` 正常退出。没有强制终止进程或关闭其它 Office 窗口，见[独立清理记录](../artifacts/history/records/navigation-probe-cleanup.json)。本轮验证的是预先只读打开的普通 Office 副本，未把它等同于新开保护视图下的选择能力。
 
 ## 5. 最终回归
 
@@ -105,4 +105,4 @@ Word 的内容分页不是对任意字体和打印环境的实际排版页数承
 
 选择长样本目录，搜索“长文末尾定位”，点击“定位并选中”。原程序 Office 选择需先在设置中开启自动化；PDF 的主要定位入口使用应用内只读文字预览。
 
-开发者可重跑 [窗口预览与面积探针](../artifacts/navigation-preview-uia.ps1) 和 [原程序独立选区探针](../artifacts/navigation-selection-probe.ps1)。UIA 探针报告使用 CreateNew，已有报告应先保留并为新轮次指定未占用的输出名；不覆盖历史证据。原程序探针使用新的 GUID 目录与独立记录，不保存源文件。
+开发者可重跑 [窗口预览与面积探针](../artifacts/history/tools/navigation-preview-uia.ps1) 和 [原程序独立选区探针](../artifacts/history/tools/navigation-selection-probe.ps1)。UIA 探针报告使用 CreateNew，已有报告应先保留并为新轮次指定未占用的输出名；不覆盖历史证据。原程序探针使用新的 GUID 目录与独立记录，不保存源文件。

@@ -1,7 +1,7 @@
 param([Parameter(Mandatory)][string]$ExePath, [Parameter(Mandatory)][ValidateSet(1,2,4)][int]$Workers, [string]$RuntimeRoot)
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
-$workspace=(Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$workspace=(Resolve-Path (Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../artifacts'))) '..')).Path
 $exe=(Resolve-Path -LiteralPath $ExePath).Path
 if(-not $exe.StartsWith($workspace+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Expected workspace-owned executable.'}
 $corpus=Join-Path $workspace 'artifacts/phase-4-corpus-standard-64/many-small'

@@ -1,6 +1,6 @@
 # Demo 对齐与应用图标实施计划
 
-日期：2026-11-13。状态：已完成。依据用户反馈，已按[清爽专业 Demo](../artifacts/ui-design-demo/index.html)调整正式 Avalonia 界面，并设计、接入原创应用图标；在 [rc.5 的 927 项基线](design-refresh-results.md)上新增 11 项桌面用例，rc.6 全部 938 项通过，独立解压实窗及九帧 EXE 图标核验通过。具体成品、截图和证据见[验收报告](demo-alignment-results.md)。
+日期：2026-11-13。状态：已完成。依据用户反馈，已按[清爽专业 Demo](../artifacts/history/ui/ui-design-demo/index.html)调整正式 Avalonia 界面，并设计、接入原创应用图标；在 [rc.5 的 927 项基线](design-refresh-results.md)上新增 11 项桌面用例，rc.6 全部 938 项通过，独立解压实窗及九帧 EXE 图标核验通过。具体成品、截图和证据见[验收报告](demo-alignment-results.md)。
 
 ## 对齐内容
 

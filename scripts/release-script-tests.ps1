@@ -4,7 +4,7 @@ param([string]$OutputRoot, [string]$TrxDirectory)
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'release-common.ps1')
 $testRoot = Split-Path $PSScriptRoot -Parent
-if (-not $OutputRoot) { $OutputRoot = Join-Path $testRoot 'artifacts/release-script-tests' }
+if (-not $OutputRoot) { $OutputRoot = Join-Path $testRoot 'artifacts/history/builds/release-script-tests' }
 $run = Join-Path ([IO.Path]::GetFullPath($OutputRoot)) ([Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $run -Force | Out-Null
 $checks = [Collections.Generic.List[string]]::new()

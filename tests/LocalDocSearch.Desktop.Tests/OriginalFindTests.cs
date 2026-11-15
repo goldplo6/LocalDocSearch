@@ -18,6 +18,7 @@ public sealed class OriginalFindTests
         Assert.Equal("西瓜", Assert.Single(assistant.Requests).SearchText);
         Assert.Contains("SearchFieldFilled", vm.StatusText);
         Assert.DoesNotContain("Exact", vm.StatusText);
+        file.IsExpanded = true;
         await vm.FindOriginalMatchCommand.ExecuteAsync(file.VisibleMatches[1]);
         Assert.Equal("苹果", assistant.Requests[1].SearchText);
         Assert.Equal(file.FullPath, assistant.Requests[1].FullPath);
@@ -49,6 +50,7 @@ public sealed class OriginalFindTests
         var file = File();
         var pending = vm.OpenFileCommand.ExecuteAsync(file);
         Assert.True(vm.IsLocating);
+        file.IsExpanded = true;
         await vm.FindOriginalMatchCommand.ExecuteAsync(file.VisibleMatches[1]);
         Assert.Single(assistant.Requests);
         source.SetResult(new FindAssistResult(FindAssistStatus.ManualFindRequired, "手工查找", "西瓜"));

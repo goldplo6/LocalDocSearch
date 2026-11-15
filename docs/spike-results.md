@@ -22,7 +22,7 @@
 - SDK 来自微软官方 10.0 release metadata 中的 win-x64 ZIP，已比较 SHA-512 后解压。构建脚本使用本地 SDK 并关闭 CLI 遥测。
 - Avalonia、Desktop、Fluent、Headless.XUnit 均为 12.1.5；CommunityToolkit.Mvvm 8.4.2。
 - Core 测试 xUnit 2.9.3；Desktop 测试 xunit.v3 3.2.2；测试适配器 4.0.1、Microsoft.NET.Test.Sdk 18.11.0。Desktop 依 Avalonia 测试包的实际依赖使用 v3 可执行宿主。
-- [中央依赖配置](../Directory.Packages.props)与四项目的锁文件固定解析结果；[完整直接/传递依赖清单](../artifacts/package-inventory.json)为本机开发产物。
+- [中央依赖配置](../Directory.Packages.props)与四项目的锁文件固定解析结果；[完整直接/传递依赖清单](../artifacts/history/records/package-inventory.json)为本机开发产物。
 
 以上是本轮本机验证版本，未作其他操作系统或其他包版本的兼容性承诺。
 
@@ -43,8 +43,8 @@
 | Desktop.Tests | 5 | 0 | 0 | 886 ms |
 | 合计 | 44 | 0 | 0 | 不作为产品性能基线 |
 
-- [Core TRX](../artifacts/test-results/29294_ORNATETEACOASTE_2026-11-06_17_23_00_net10.0.trx)
-- [Desktop TRX](../artifacts/test-results/29294_ORNATETEACOASTE_2026-11-06_17_23_03_net10.0.trx)
+- [Core TRX](../artifacts/history/builds/test-results/29294_ORNATETEACOASTE_2026-11-06_17_23_00_net10.0.trx)
+- [Desktop TRX](../artifacts/history/builds/test-results/29294_ORNATETEACOASTE_2026-11-06_17_23_03_net10.0.trx)
 
 Core 测试覆盖中文短词与包含关系、普通符号、大小写、关键词去重、每词非重叠计数、跨行文件级 AND/OR、类型过滤、六种 Unicode 编码、非法及晚出现的解码错误、UTF-16 列号、读取缓冲边界、输入错误、取消、共享/独占文件处理，以及源文件 SHA-256 和修改时间保持不变。
 
@@ -72,7 +72,7 @@ Headless 是控件和逻辑测试，不替代输入法或真实滚动手感验�
 | 加载一万条模拟结果 | 桌面状态明确标识模拟数据；辅助功能树中只有 6 个可视文件项 |
 | 退出 | 已请求正常关闭，确认本次测试进程已结束 |
 
-保存的辅助功能快照：[AND](../artifacts/desktop-uia-smoke.json)、[OR](../artifacts/desktop-uia-or.json)、[万条模拟列表](../artifacts/desktop-uia-demo.json)。本机还采集了[初始窗口截图](../artifacts/desktop-smoke.png)，尺寸 1443 × 1072；该截图尚未完成视觉审阅，控件文本与搜索行为证据来自上述 UI Automation 操作。
+保存的辅助功能快照：[AND](../artifacts/history/records/desktop-uia-smoke.json)、[OR](../artifacts/history/records/desktop-uia-or.json)、[万条模拟列表](../artifacts/history/records/desktop-uia-demo.json)。本机还采集了[初始窗口截图](../artifacts/history/screenshots/desktop-smoke.png)，尺寸 1443 × 1072；该截图尚未完成视觉审阅，控件文本与搜索行为证据来自上述 UI Automation 操作。
 
 真实窗口末端滚动的辅助功能探针未取得有效结果：ScrollPattern 暴露的滚动百分比为 -1，列表 SetFocus 调用也未成功。因此未把该探针记为滚动验收通过；首末项回收由 Headless 实验验证，真实鼠标/键盘滚动继续待人工确认。UI Automation 填入中文不等于使用中文 IME 候选确认。
 

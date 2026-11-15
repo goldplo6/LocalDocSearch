@@ -15,7 +15,7 @@
 
 沿用项目本地 .NET SDK 10.0.403、Avalonia 12.1.5 与 CommunityToolkit.Mvvm 8.4.2。新增 DocumentFormat.OpenXml 3.5.1、PdfPig 0.1.16；七个项目纳入 [solution](../LocalDocSearch.slnx) 与锁定构建。Core/Extractors 测试采用 xUnit v2，Avalonia Headless 使用对应 v3 宿主。
 
-2026-11-09 实读官方 NuGet nuspec：Open XML SDK 直接许可为 MIT，PdfPig 为 Apache-2.0；这仅核对直接包声明，完整传递依赖与分发义务仍待审查。包清单见 [依赖盘点](../artifacts/package-inventory.json)，决策见 [ADR-004](decision-log.md)。
+2026-11-09 实读官方 NuGet nuspec：Open XML SDK 直接许可为 MIT，PdfPig 为 Apache-2.0；这仅核对直接包声明，完整传递依赖与分发义务仍待审查。包清单见 [依赖盘点](../artifacts/history/records/package-inventory.json)，决策见 [ADR-004](decision-log.md)。
 
 本机装有 Office。本次解析测试没有调用 Office/COM，但尚未在无 Office 干净机复测，二者分别记录。
 
@@ -39,9 +39,9 @@
 
 最终 TRX：
 
-- [Core：08:25:34](../artifacts/test-results/29294_ORNATETEACOASTE_2026-11-09_08_25_34_net10.0.trx)
-- [Extractors：08:25:34](<../artifacts/test-results/29294_ORNATETEACOASTE_2026-11-09_08_25_34_net10.0[1].trx>)
-- [Desktop：08:25:48](../artifacts/test-results/29294_ORNATETEACOASTE_2026-11-09_08_25_48_net10.0.trx)
+- [Core：08:25:34](../artifacts/history/builds/test-results/29294_ORNATETEACOASTE_2026-11-09_08_25_34_net10.0.trx)
+- [Extractors：08:25:34](<../artifacts/history/builds/test-results/29294_ORNATETEACOASTE_2026-11-09_08_25_34_net10.0[1].trx>)
+- [Desktop：08:25:48](../artifacts/history/builds/test-results/29294_ORNATETEACOASTE_2026-11-09_08_25_48_net10.0.trx)
 
 覆盖的主要行为：
 
@@ -70,7 +70,7 @@
 
 mixed 目录另有无扩展名说明文件，因此全格式显示跳过 1；仅 Excel 时跳过 8（七个未选格式与说明文件），这不表示这些样本解析失败。状态为“部分完成”，原因是 Office/PDF 固定搜索范围/值语义警告，自动测试确认基线没有 Error 级问题。
 
-证据：[最终窗口控件与结果记录](../artifacts/phase-2-desktop-uia.json)、[本机复现脚本](../artifacts/phase-2-uia-smoke.ps1)。脚本依赖本机 WindowsDesktop 6.0.11 UI Automation 程序集，仅为本机开发证据。前两次按预设完整路径寻找展开元素未命中；最终先筛选 Excel，再使用当前控件实际名称定位并验证通过。它们没有改动应用代码。
+证据：[最终窗口控件与结果记录](../artifacts/history/records/phase-2-desktop-uia.json)、[本机复现脚本](../artifacts/history/tools/phase-2-uia-smoke.ps1)。脚本依赖本机 WindowsDesktop 6.0.11 UI Automation 程序集，仅为本机开发证据。前两次按预设完整路径寻找展开元素未命中；最终先筛选 Excel，再使用当前控件实际名称定位并验证通过。它们没有改动应用代码。
 
 本次没有完成截图视觉审阅、真实 IME 输入、多 DPI、完整键盘或真实长列表滚动验收。PDF 其他页与 PPT 第 8 张的来源由提取器和 Headless 测试核对，未宣称在真实窗口逐项手动展开。
 

@@ -96,7 +96,9 @@ public sealed class SettingsAndNavigationTests
         vm.ApplySettings(vm.CaptureSettings() with { ContextCharacters = 3, SortMode = 2 });
         await vm.StartSearchCommand.ExecuteAsync(null);
         Assert.EndsWith("z.txt", vm.Results[0].FullPath);
-        var match = Assert.Single(vm.Results.Single(f => f.FullPath.EndsWith("a.txt")).VisibleMatches);
+        var file = vm.Results.Single(f => f.FullPath.EndsWith("a.txt"));
+        file.IsExpanded = true;
+        var match = Assert.Single(file.VisibleMatches);
         Assert.Equal("HIJ", match.Before); Assert.Equal("KLM", match.After);
         vm.ApplySettings(vm.CaptureSettings() with { SortMode = 1 });
         Assert.EndsWith("a.txt", vm.Results[0].FullPath);
@@ -110,6 +112,7 @@ public sealed class SettingsAndNavigationTests
         var first = new MatchItem("西瓜", "", "西瓜", "", new SourceLocator(SourceKind.ExcelCell, Sheet: "Sheet2", Address: "B15"));
         var second = first with { Location = new SourceLocator(SourceKind.ExcelCell, Sheet: "Sheet2", Address: "D20") };
         var file = new FileResultViewModel(new FileResult("chosen.xlsx", ".xlsx", DateTime.UtcNow, [first, second]));
+        file.IsExpanded = true;
         await vm.LocateMatchCommand.ExecuteAsync(file.VisibleMatches[1]);
         Assert.Equal("D20", fake.Request!.Match!.Location.Address);
         Assert.False(fake.Request.AllowOfficeAutomation); Assert.Contains("OpenedOnly", vm.StatusText);

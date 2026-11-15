@@ -1,8 +1,8 @@
 [CmdletBinding()]
 param(
-    [string]$BenchmarkDll = (Join-Path $PSScriptRoot '../tools/LocalDocSearch.Benchmarks/bin/Release/net10.0/LocalDocSearch.Benchmarks.dll'),
+    [string]$BenchmarkDll = (Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../artifacts'))) '../tools/LocalDocSearch.Benchmarks/bin/Release/net10.0/LocalDocSearch.Benchmarks.dll'),
     [string]$DotnetPath = 'dotnet',
-    [string]$CorpusRoot = (Join-Path $PSScriptRoot 'phase-4-corpus-standard-64')
+    [string]$CorpusRoot = (Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../artifacts'))) 'phase-4-corpus-standard-64')
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -10,7 +10,7 @@ Set-StrictMode -Version Latest
 $BenchmarkDll = (Resolve-Path -LiteralPath $BenchmarkDll).Path
 $CorpusRoot = (Resolve-Path -LiteralPath $CorpusRoot).Path
 $dotnetCommand = (Get-Command $DotnetPath -ErrorAction Stop).Source
-$logRoot = Join-Path $PSScriptRoot ('concurrency-experiment-' + [guid]::NewGuid().ToString('N'))
+$logRoot = Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../artifacts'))) ('concurrency-experiment-' + [guid]::NewGuid().ToString('N'))
 $null = New-Item -ItemType Directory -Path $logRoot
 $baseline = @{}
 $samples = [System.Collections.Generic.List[object]]::new()

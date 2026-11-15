@@ -64,4 +64,4 @@ pwsh -NoProfile -File .\scripts\generate-app-icon.ps1
 - [应用主题](../src/LocalDocSearch.Desktop/App.axaml)通过全局 `Window.Icon` 使用同一 ICO；主窗口、高级搜索和独立预览沿用同一标识。
 - [BrandMark 控件](../src/LocalDocSearch.Desktop/Controls/BrandMark.axaml)显示 256 PNG，按正方形保持比例，用于主窗口和高级搜索的品牌栏。PNG 自带蓝色底板与透明圆角。
 - 32 / 40 / 48 逻辑像素的品牌图形可直接缩放 256 PNG；高分辨率介绍材料可使用[512 PNG](../src/LocalDocSearch.Desktop/Assets/app-icon-512.png)或[SVG](../src/LocalDocSearch.Desktop/Assets/app-icon.svg)。
-- [PE 图标核验工具](../artifacts/verify-demo-icon-pe.ps1)只读提取已构建 EXE 的图标组，逐帧比较尺寸、PNG 哈希并用 Windows 解码器重建检查；完整候选结果汇总于[本轮交付报告](demo-alignment-results.md)。
+- [PE 图标核验工具](../artifacts/history/tools/verify-demo-icon-pe.ps1)只读提取已构建 EXE 的图标组，逐帧比较尺寸、PNG 哈希并用 Windows 解码器重建检查；完整候选结果汇总于[本轮交付报告](demo-alignment-results.md)。

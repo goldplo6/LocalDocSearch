@@ -18,8 +18,14 @@ public sealed class CsvTextExtractor : ITextExtractor
         long record = 1, fieldStartLine = 1;
         var field = 1;
         var pendingRecord = false;
-        while (await input.ReadAsync(cancellationToken).ConfigureAwait(false) is var current && current >= 0)
+        while (true)
         {
+            if (!input.TryRead(out var current))
+            {
+                await input.RefillAsync(cancellationToken).ConfigureAwait(false);
+                continue;
+            }
+            if (current < 0) break;
             cancellationToken.ThrowIfCancellationRequested();
             var character = (char)current;
             pendingRecord = true;
@@ -74,31 +80,57 @@ public sealed class CsvTextExtractor : ITextExtractor
     {
         private readonly char[] _buffer = new char[8192];
         private int _position, _count, _pending = -1;
+        private bool _pendingCr, _endOfRead;
         public long Line { get; private set; } = 1;
 
-        public async ValueTask<int> ReadAsync(CancellationToken token)
+        // False means that the caller must refill, not EOF; EOF is the raw value -1.
+        public bool TryRead(out int current)
         {
-            var current = await ReadRawAsync(token).ConfigureAwait(false);
+            if (_pendingCr) current = '\r';
+            else if (!TryReadRaw(out current)) return false;
             if (current == '\r')
             {
-                var next = await ReadRawAsync(token).ConfigureAwait(false);
+                // Complete the original CR lookahead before returning LF. In particular,
+                // a refill/decoder failure here must precede the next field's yield.
+                if (!TryReadRaw(out var next))
+                {
+                    _pendingCr = true;
+                    return false;
+                }
+                _pendingCr = false;
                 if (next != '\n') _pending = next;
                 current = '\n';
             }
             if (current == '\n') Line++;
-            return current;
+            return true;
         }
 
-        private async ValueTask<int> ReadRawAsync(CancellationToken token)
+        public async ValueTask RefillAsync(CancellationToken token)
         {
-            if (_pending >= 0) { var next = _pending; _pending = -1; return next; }
-            if (_position >= _count)
+            _count = await reader.ReadAsync(_buffer.AsMemory(), token).ConfigureAwait(false);
+            _position = 0;
+            _endOfRead = _count == 0;
+        }
+
+        private bool TryReadRaw(out int current)
+        {
+            if (_pending >= 0)
             {
-                _count = await reader.ReadAsync(_buffer.AsMemory(), token).ConfigureAwait(false);
-                _position = 0;
-                if (_count == 0) return -1;
+                current = _pending;
+                _pending = -1;
+                return true;
             }
-            return _buffer[_position++];
+            if (_position < _count)
+            {
+                current = _buffer[_position++];
+                return true;
+            }
+            current = -1;
+            if (!_endOfRead) return false;
+            // Consume one EOF observation, just as one old raw read did. A terminal
+            // CR still permits the subsequent read rather than caching EOF forever.
+            _endOfRead = false;
+            return true;
         }
     }
 }
