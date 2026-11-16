@@ -4,11 +4,26 @@ Set-StrictMode -Version Latest
 $workspace=(Resolve-Path (Join-Path ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../artifacts'))) '..')).Path
 $exe=(Resolve-Path -LiteralPath $ExePath).Path
 if(-not $exe.StartsWith($workspace+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Expected workspace-owned executable.'}
+$package=Split-Path $exe
+$coreClr=Join-Path $package 'coreclr.dll'
+$packageFiles=@($exe)+@('DocSearch.dll','LocalDocSearch.Core.dll','LocalDocSearch.Extractors.dll','coreclr.dll'|ForEach-Object {Join-Path $package $_})
+function File-Evidence([string[]]$Paths) {
+ foreach($filePath in ($Paths|Sort-Object)) {
+  $file=Get-Item -LiteralPath $filePath
+  if($file.PSIsContainer){throw ('Expected evidence file: '+$filePath)}
+  [ordered]@{path=$file.FullName;length=$file.Length;mtimeUtcTicks=$file.LastWriteTimeUtc.Ticks;sha256=(Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash}
+ }
+}
+$packageBefore=@(File-Evidence $packageFiles)
+$packageBeforeJson=ConvertTo-Json -InputObject $packageBefore -Depth 6 -Compress
 $corpus=Join-Path $workspace 'artifacts/phase-4-corpus-standard-64/many-small'
 $owned=Join-Path $workspace ('artifacts/concurrency-controls-uia-'+[guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $owned|Out-Null
 function Source-State { @(Get-ChildItem -LiteralPath $corpus -File -Recurse | Sort-Object FullName | ForEach-Object {[ordered]@{path=[IO.Path]::GetRelativePath($corpus,$_.FullName);bytes=$_.Length;ticks=$_.LastWriteTimeUtc.Ticks;sha256=(Get-FileHash -LiteralPath $_.FullName).Hash}}) | ConvertTo-Json -Compress }
 $before=Source-State
+function Source-Evidence { File-Evidence @(Get-ChildItem -LiteralPath $corpus -File -Recurse -Force|Select-Object -ExpandProperty FullName) }
+$sourceBefore=@(Source-Evidence)
+$sourceBeforeJson=ConvertTo-Json -InputObject $sourceBefore -Depth 6 -Compress
 $runtime='C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\6.0.11'
 foreach($assembly in @('UIAutomationTypes.dll','UIAutomationClient.dll','System.Drawing.Common.dll')){Add-Type -Path (Join-Path $runtime $assembly)}
 Add-Type @'
@@ -77,13 +92,20 @@ function Stop-OwnedSearch {
 $previousDotnetRoot=$env:DOTNET_ROOT
 $runtimeOverride=$null
 if($RuntimeRoot){$runtimeOverride=(Resolve-Path -LiteralPath $RuntimeRoot).Path;if(-not (Test-Path -LiteralPath (Join-Path $runtimeOverride 'dotnet.exe') -PathType Leaf)){throw 'RuntimeRoot must contain dotnet.exe.'}}
-$report=[ordered]@{passed=$false;workers=$Workers;exe=$exe;exeSha256=(Get-FileHash -LiteralPath $exe).Hash;runtimeRoot=$runtimeOverride;clipboardTouched=$false;globalInputUsed=$false;scenarios=@();ownedProcessClosed=$false;sourceFilesUnchanged=$false;notes='UIA invokes controls only in the owned PID; pause is acknowledged after a cooperative checkpoint and accepted results drain; this does not measure interruption inside third-party synchronous parsers.'}
+$report=[ordered]@{passed=$false;workers=$Workers;exe=$exe;exeSha256=(Get-FileHash -LiteralPath $exe).Hash;runtimeRoot=$runtimeOverride;clipboardTouched=$false;globalInputUsed=$false;scenarios=@();ownedProcessClosed=$false;sourceFilesUnchanged=$false;ownedProcessId=$null;coreClrPath=$null;coreClrFromPackage=$false;packageBefore=$packageBefore;packageAfter=@();packageFilesUnchanged=$false;sourceBefore=$sourceBefore;sourceAfter=@();cleanupErrors=@();notes='UIA invokes controls only in the owned PID; pause is acknowledged after a cooperative checkpoint and accepted results drain; this does not measure interruption inside third-party synchronous parsers.'}
 $scenarios=[Collections.Generic.List[object]]::new()
 try{
  $settings=Join-Path $owned 'settings.json'
  if($runtimeOverride){$env:DOTNET_ROOT=$runtimeOverride}
  $script:process=Start-Process -FilePath $exe -ArgumentList @('--settings',('"'+$settings+'"'),'--experiment-workers',[string]$Workers) -PassThru -WorkingDirectory (Split-Path $exe) -RedirectStandardOutput (Join-Path $owned 'stdout.log') -RedirectStandardError (Join-Path $owned 'stderr.log')
  Wait-Until {$script:process.Refresh();if($script:process.MainWindowHandle -ne 0){$script:main=[Windows.Automation.AutomationElement]::FromHandle($script:process.MainWindowHandle);if($null -ne (By-Id 'PauseResumeSearch')){return $true}}}|Out-Null
+ $report.ownedProcessId=$script:process.Id
+ $script:process.Refresh()
+ $modules=@($script:process.Modules|Where-Object ModuleName -eq 'coreclr.dll')
+ if($modules.Count -ne 1){throw 'Expected exactly one loaded CoreCLR module.'}
+ $report.coreClrPath=$modules[0].FileName
+ $report.coreClrFromPackage=[string]::Equals($report.coreClrPath,$coreClr,[StringComparison]::OrdinalIgnoreCase)
+ if(-not $report.coreClrFromPackage){throw 'Application did not load CoreCLR from its own package.'}
  foreach($term in @('西瓜','苹果')){Set-Value (By-Name '待添加关键词') $term;Invoke-Control (By-Name '添加')}
  Set-Value (By-Name '搜索根目录') $corpus
  Start-OwnedSearch
@@ -107,10 +129,24 @@ try{
  $scenarios.Add([ordered]@{name='restart-after-stop';passed=$true;completion=$completed})
  $report.completedScreenshot=Capture-Owned 'completed'
  if((Source-State) -cne $before){throw 'Benchmark source changed.'}
- $report.sourceFilesUnchanged=$true;$report.passed=$true
+ $report.passed=$true
 }catch{$report.error=$_.Exception.Message;throw}finally{
- if($null -ne $script:process){$script:process.Refresh();if(-not $script:process.HasExited){$script:process.CloseMainWindow()|Out-Null;$script:process.WaitForExit(10000)|Out-Null};$script:process.Refresh();$report.ownedProcessClosed=$script:process.HasExited}
+ $cleanupErrors=[Collections.Generic.List[string]]::new()
+ try {if($null -ne $script:process){$script:process.Refresh();if(-not $script:process.HasExited){$script:process.CloseMainWindow()|Out-Null;$script:process.WaitForExit(10000)|Out-Null};$script:process.Refresh();$report.ownedProcessClosed=$script:process.HasExited}} catch {$cleanupErrors.Add($_.Exception.Message)}
+ try {
+  $report.sourceAfter=@(Source-Evidence)
+  $report.sourceFilesUnchanged=(ConvertTo-Json -InputObject $report.sourceAfter -Depth 6 -Compress) -ceq $sourceBeforeJson
+  if(-not $report.sourceFilesUnchanged){$cleanupErrors.Add('Source SHA256, length or mtime changed.')}
+ } catch {$cleanupErrors.Add($_.Exception.Message)}
+ try {
+  $report.packageAfter=@(File-Evidence $packageFiles)
+  $report.packageFilesUnchanged=(ConvertTo-Json -InputObject $report.packageAfter -Depth 6 -Compress) -ceq $packageBeforeJson
+  if(-not $report.packageFilesUnchanged){$cleanupErrors.Add('Package SHA256, length or mtime changed.')}
+ } catch {$cleanupErrors.Add($_.Exception.Message)}
+ $report.cleanupErrors=$cleanupErrors.ToArray()
+ if(-not $report.sourceFilesUnchanged -or -not $report.packageFilesUnchanged -or -not $report.coreClrFromPackage -or -not $report.ownedProcessClosed -or $cleanupErrors.Count -gt 0){$report.passed=$false}
  $report.scenarios=$scenarios.ToArray();$report.reportPath=Join-Path $owned 'results.json';$report|ConvertTo-Json -Depth 12|Set-Content -LiteralPath $report.reportPath -Encoding utf8
  if($runtimeOverride){$env:DOTNET_ROOT=$previousDotnetRoot}
- [ordered]@{passed=$report.passed;workers=$Workers;exeSha256=$report.exeSha256;reportPath=$report.reportPath;scenarios=$scenarios.Count;sourceFilesUnchanged=$report.sourceFilesUnchanged;ownedProcessClosed=$report.ownedProcessClosed}|ConvertTo-Json
+ [ordered]@{passed=$report.passed;workers=$Workers;exeSha256=$report.exeSha256;reportPath=$report.reportPath;scenarios=$scenarios.Count;sourceFilesUnchanged=$report.sourceFilesUnchanged;ownedProcessClosed=$report.ownedProcessClosed;coreClrPath=$report.coreClrPath;coreClrFromPackage=$report.coreClrFromPackage;packageFilesUnchanged=$report.packageFilesUnchanged}|ConvertTo-Json
 }
+if(-not $report.passed){throw 'Native owned concurrency-controls verification failed; see report.'}

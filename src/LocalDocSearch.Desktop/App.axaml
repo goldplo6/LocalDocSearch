@@ -84,6 +84,37 @@
       <Setter Property="Background" Value="#EDF2FA" />
       <Setter Property="BorderBrush" Value="Transparent" />
     </Style>
+    <Style Selector="Button.pause">
+      <Setter Property="Background" Value="#FEF3C7" />
+      <Setter Property="Foreground" Value="#92400E" />
+      <Setter Property="BorderBrush" Value="#F59E0B" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.pause:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#FDE68A" />
+      <Setter Property="BorderBrush" Value="#D97706" />
+    </Style>
+    <Style Selector="Button.pause:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#FCD34D" />
+      <Setter Property="BorderBrush" Value="#B45309" />
+    </Style>
+    <Style Selector="Button.stop">
+      <Setter Property="Background" Value="#DC2626" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="BorderBrush" Value="#DC2626" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.stop:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#B91C1C" />
+      <Setter Property="BorderBrush" Value="#B91C1C" />
+    </Style>
+    <Style Selector="Button.stop:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#991B1B" />
+      <Setter Property="BorderBrush" Value="#991B1B" />
+    </Style>
+    <Style Selector="Button.pause:focus-visible /template/ ContentPresenter#PART_ContentPresenter, Button.stop:focus-visible /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BorderBrush" Value="{DynamicResource DsAccentBrush}" />
+    </Style>
     <Style Selector="Button.chip">
       <Setter Property="Background" Value="{DynamicResource DsAccentSoftBrush}" />
       <Setter Property="Foreground" Value="{DynamicResource DsAccentBrush}" />

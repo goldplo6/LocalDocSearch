@@ -26,11 +26,23 @@ internal static class ReadOnlyExtraction
         token.ThrowIfCancellationRequested();
         await Task.CompletedTask.ConfigureAwait(false);
         var segments = Load(path, context, read, token);
-        token.ThrowIfCancellationRequested();
-        foreach (var segment in segments)
+        try
         {
             token.ThrowIfCancellationRequested();
-            yield return segment;
+            for (int index = 0; index < segments.Count; index++)
+            {
+                token.ThrowIfCancellationRequested();
+                var segment = segments[index];
+                // Parsing has already succeeded for the whole file. Keep only the
+                // current and not-yet-consumed segments alive while searching.
+                segments[index] = null!;
+                yield return segment;
+            }
+        }
+        finally
+        {
+            // Dispose/cancellation can stop enumeration before the last segment.
+            segments.Clear();
         }
     }
 

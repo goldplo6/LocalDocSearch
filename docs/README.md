@@ -3,6 +3,7 @@
 ## 当前工作与实现
 
 - [搜索原理与后续计划](search-principles-and-next-steps.md)
+- [逐格式优化 rc.12：验收](format-optimization-results.md) · [计划](format-optimization-plan.md)
 - [首屏懒加载与 CSV 块解析 rc.11：验收](ui-csv-optimization-results.md) · [计划](ui-csv-optimization-plan.md)
 - [固定开销优化 rc.10：验收](fixed-overhead-results.md) · [计划](fixed-overhead-plan.md)
 - [多关键词候选预筛 rc.9：验收](literal-prefilter-results.md) · [计划](literal-prefilter-plan.md)

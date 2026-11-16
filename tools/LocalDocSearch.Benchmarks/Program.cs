@@ -26,8 +26,11 @@ public static class BenchmarkCli
                         "literal-run <owned-root> <scenario> [--repeat 1..20] [--output new-json-file]",
                         "csv-prepare <new-root> [--quick]",
                         "csv-run <owned-root> <scenario> [--repeat 1..20] [--output new-json-file]",
+                        "format-prepare <new-root> [--quick]",
+                        "format-run <owned-root> <scenario> [--repeat 1..20] [--observe-retained] [--output new-json-file]",
                         "overhead-coordinates [--repeat 1..20] [--iterations 1..20000000] [--output new-json-file]" },
                     scenarios = BenchmarkCorpus.ScenarioNames, csvScenarios = CsvParsingBenchmark.Scenarios,
+                    formatScenarios = FormatOptimizationBenchmark.Scenarios,
                     omittedFields = BenchmarkRunner.OmittedFields
                 }));
                 return 0;
@@ -68,6 +71,45 @@ public static class BenchmarkCli
             }
             if (args.Length < 2) throw new BenchmarkException("invalid-arguments");
             string command = args[0], root = args[1];
+            if (command is "format-prepare" or "format-run")
+            {
+                if (command == "format-prepare")
+                {
+                    if (args.Length > 3 || args.Length == 3 && args[2] != "--quick")
+                        throw new BenchmarkException("invalid-arguments");
+                    var manifest = FormatOptimizationBenchmark.Prepare(root, args.Length == 3);
+                    await output.WriteLineAsync(BenchmarkJson.Serialize(new { passed = true, manifest,
+                        scenarios = FormatOptimizationBenchmark.Scenarios }));
+                    return 0;
+                }
+                if (args.Length < 3) throw new BenchmarkException("invalid-arguments");
+                FormatOptimizationBenchmark.Expected(args[2], true);
+                scenario = args[2];
+                int formatRepeat = 3;
+                bool observeRetained = false;
+                string? formatOutput = null;
+                var formatSeen = new HashSet<string>(StringComparer.Ordinal);
+                for (int index = 3; index < args.Length; index++)
+                {
+                    if (!formatSeen.Add(args[index])) throw new BenchmarkException("duplicate-option");
+                    if (args[index] == "--repeat") formatRepeat = IntegerOption(args, ref index);
+                    else if (args[index] == "--observe-retained") observeRetained = true;
+                    else if (args[index] == "--output" && ++index < args.Length)
+                        formatOutput = ValidateOutputPath(root, args[index]);
+                    else throw new BenchmarkException("unknown-or-incomplete-option");
+                }
+                var formatReport = await FormatOptimizationBenchmark.RunAsync(root, scenario, formatRepeat, observeRetained).ConfigureAwait(false);
+                string formatJson = BenchmarkJson.Serialize(formatReport);
+                if (formatOutput is not null)
+                {
+                    BenchmarkCorpus.AssertOrdinaryAncestors(formatOutput);
+                    using var stream = new FileStream(formatOutput, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+                    using var writer = new StreamWriter(stream, new UTF8Encoding(false));
+                    await writer.WriteAsync(formatJson).ConfigureAwait(false);
+                }
+                await output.WriteLineAsync(formatJson);
+                return formatReport.Passed ? 0 : 2;
+            }
             if (command is "csv-prepare" or "csv-run")
             {
                 if (command == "csv-prepare")

@@ -4,8 +4,13 @@
 
 | 用途 | 位置 |
 | --- | --- |
-| 最新 rc.11 程序 | [DocSearch.exe](releases-ui-csv/LocalDocSearch-1.0.0-rc.11-win-x64/LocalDocSearch-1.0.0-rc.11-win-x64/DocSearch.exe) |
-| 最新 rc.11 完整压缩包 | [ZIP](releases-ui-csv/LocalDocSearch-1.0.0-rc.11-win-x64/LocalDocSearch-1.0.0-rc.11-win-x64.zip) |
+| 最新 rc.13 程序 | [DocSearch.exe](releases-control-colors/LocalDocSearch-1.0.0-rc.13-win-x64/LocalDocSearch-1.0.0-rc.13-win-x64/DocSearch.exe) |
+| 最新 rc.13 完整压缩包 | [ZIP](releases-control-colors/LocalDocSearch-1.0.0-rc.13-win-x64/LocalDocSearch-1.0.0-rc.13-win-x64.zip) |
+| rc.12 程序／逐格式验收基线 | [DocSearch.exe](releases-format-optimization/LocalDocSearch-1.0.0-rc.12-win-x64/LocalDocSearch-1.0.0-rc.12-win-x64/DocSearch.exe) |
+| rc.12 完整压缩包／逐格式验收基线 | [ZIP](releases-format-optimization/LocalDocSearch-1.0.0-rc.12-win-x64/LocalDocSearch-1.0.0-rc.12-win-x64.zip) |
+| rc.12 验收 | [逐格式优化报告](../docs/format-optimization-results.md) · [独立审计](releases-format-optimization/LocalDocSearch-1.0.0-rc.12-win-x64/final-audit.json) |
+| rc.11 程序／复测基线 | [DocSearch.exe](releases-ui-csv/LocalDocSearch-1.0.0-rc.11-win-x64/LocalDocSearch-1.0.0-rc.11-win-x64/DocSearch.exe) |
+| rc.11 完整压缩包／复测基线 | [ZIP](releases-ui-csv/LocalDocSearch-1.0.0-rc.11-win-x64/LocalDocSearch-1.0.0-rc.11-win-x64.zip) |
 | rc.11 验收 | [优化报告](../docs/ui-csv-optimization-results.md) |
 | rc.10 程序／复测基线 | [DocSearch.exe](releases-fixed-overhead/LocalDocSearch-1.0.0-rc.10-win-x64/LocalDocSearch-1.0.0-rc.10-win-x64/DocSearch.exe) |
 | rc.10 完整压缩包／复测基线 | [ZIP](releases-fixed-overhead/LocalDocSearch-1.0.0-rc.10-win-x64/LocalDocSearch-1.0.0-rc.10-win-x64.zip) |
@@ -15,7 +20,7 @@
 | 本次目录归类 | [迁移计划与原路径映射](organization/plan.json) |
 | 历史材料 | [按用途归档](history/) |
 
-项目根目录的“启动最新版.cmd”启动上述 rc.11。rc.10、rc.9 和原运行目录作为复测／回滚基线继续保留。发布目录中的运行时、DLL、许可证与清单整体保留。
+项目根目录的[启动最新版.cmd](../启动最新版.cmd)启动上述 rc.13。rc.12、rc.11、rc.10、rc.9 和原运行目录作为复测／回滚基线继续保留。发布目录中的运行时、DLL、许可证与清单整体保留。
 
 ## 历史材料分类
 

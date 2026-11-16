@@ -12,6 +12,16 @@ $package = Split-Path $exe
 $dll = Join-Path $package 'DocSearch.dll'
 $coreClr = Join-Path $package 'coreclr.dll'
 foreach ($required in @($dll, $coreClr)) { if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { throw ('Self-contained package file missing: ' + $required) } }
+$packageFiles = @($exe) + @('DocSearch.dll', 'LocalDocSearch.Core.dll', 'LocalDocSearch.Extractors.dll', 'coreclr.dll' | ForEach-Object { Join-Path $package $_ })
+function File-Evidence([string[]]$Paths) {
+    foreach ($filePath in ($Paths | Sort-Object)) {
+        $file = Get-Item -LiteralPath $filePath
+        if ($file.PSIsContainer) { throw ('Expected evidence file: ' + $filePath) }
+        [ordered]@{ path = $file.FullName; length = $file.Length; mtimeUtcTicks = $file.LastWriteTimeUtc.Ticks; sha256 = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash }
+    }
+}
+$packageBefore = @(File-Evidence $packageFiles)
+$packageBeforeJson = ConvertTo-Json -InputObject $packageBefore -Depth 6 -Compress
 if ($UiaRuntimeRoot) { $uiaRoot = (Resolve-Path -LiteralPath $UiaRuntimeRoot).Path }
 else {
     $framework = Join-Path $env:ProgramFiles 'dotnet/shared/Microsoft.WindowsDesktop.App'
@@ -287,6 +297,7 @@ $report = [ordered]@{
     scriptSha256 = (Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash; testOnlyUiaRuntime = $uiaRoot
     reportPath = Join-Path $owned 'results.json'; settingsPath = $settings; ownedProcessId = $null; coreClrPath = $null; coreClrFromPackage = $false
     ownedProcessClosed = $false; normalCloseRequested = $false; sourceFilesUnchanged = $false; sourceBefore = $before; sourceAfter = @()
+    packageBefore = $packageBefore; packageAfter = @(); packageFilesUnchanged = $false
     clipboardTouched = $false; globalInputUsed = $false; originalFileOpened = $false
     expectedFiles = $expectedFiles; malformedFile = @{ file = $brokenName; earlyMatchingText = '西瓜'; expectedPublishedFile = $false; expectedIssueCode = 'InvalidData'; expectedIssue = $expectedIssue }
     cases = @(); expansions = @(); previews = @(); error = $null; cleanupErrors = @()
@@ -364,6 +375,13 @@ finally {
         if (-not $report.sourceFilesUnchanged) { $cleanupErrors.Add('Source SHA256, length or mtime changed.') }
     }
     catch { $cleanupErrors.Add($_.Exception.Message) }
+    try {
+        $report.packageAfter = @(File-Evidence $packageFiles)
+        $report.packageFilesUnchanged = (ConvertTo-Json -InputObject $report.packageAfter -Depth 6 -Compress) -ceq $packageBeforeJson
+        if (-not $report.packageFilesUnchanged) { $cleanupErrors.Add('Package SHA256, length or mtime changed.') }
+    }
+    catch { $cleanupErrors.Add($_.Exception.Message) }
+    if (-not $report.coreClrFromPackage) { $cleanupErrors.Add('Package CoreCLR provenance was not verified.') }
     if (-not $report.ownedProcessClosed -or -not $report.normalCloseRequested) { $cleanupErrors.Add('Normal owned process shutdown was not verified.') }
     $report.cleanupErrors = $cleanupErrors.ToArray()
     if ($cleanupErrors.Count -gt 0) { $report.passed = $false; if ($null -eq $report.error) { $report.error = $cleanupErrors -join ' | ' } }

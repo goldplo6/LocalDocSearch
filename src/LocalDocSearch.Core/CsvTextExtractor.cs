@@ -20,6 +20,14 @@ public sealed class CsvTextExtractor : ITextExtractor
         var pendingRecord = false;
         while (true)
         {
+            if ((state is FieldState.Start or FieldState.Unquoted or FieldState.Quoted) &&
+                input.TryAppendOrdinary(value, context.Limits.MaxSegmentCharacters,
+                    state == FieldState.Quoted, cancellationToken))
+            {
+                pendingRecord = true;
+                if (state == FieldState.Start) state = FieldState.Unquoted;
+                continue;
+            }
             if (!input.TryRead(out var current))
             {
                 await input.RefillAsync(cancellationToken).ConfigureAwait(false);
@@ -82,6 +90,33 @@ public sealed class CsvTextExtractor : ITextExtractor
         private int _position, _count, _pending = -1;
         private bool _pendingCr, _endOfRead;
         public long Line { get; private set; } = 1;
+
+        public bool TryAppendOrdinary(StringBuilder value, int limit, bool quoted, CancellationToken token)
+        {
+            // A raw lookahead belongs to TryRead, especially when CR crosses a refill.
+            if (_pendingCr || _pending >= 0 || _position >= _count) return false;
+            var start = _position;
+            var available = _buffer.AsSpan(start, _count - start);
+            // Commas are literal inside quotes; quotes and line breaks retain the
+            // original scalar transitions, raw lookahead, and physical line count.
+            var separator = quoted ? available.IndexOfAny('"', '\r', '\n') : available.IndexOfAny(",\"\r\n");
+            var length = separator < 0 ? _count - start : separator;
+            if (length == 0) return false;
+
+            var remaining = limit - value.Length;
+            for (var offset = 0; offset < length; offset++)
+            {
+                // The old loop consumes one raw character before cancellation, then
+                // checks its budget. Keep both checks per character, including the
+                // first over-budget character, rather than admitting a whole block.
+                _position++;
+                token.ThrowIfCancellationRequested();
+                if (offset >= remaining)
+                    throw new SearchResourceLimitException(nameof(SearchResourceLimits.MaxSegmentCharacters), limit);
+            }
+            value.Append(_buffer.AsSpan(start, length));
+            return true;
+        }
 
         // False means that the caller must refill, not EOF; EOF is the raw value -1.
         public bool TryRead(out int current)

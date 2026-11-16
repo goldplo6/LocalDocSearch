@@ -75,15 +75,7 @@ public sealed class PowerPointTextExtractor(DocumentScopeOptions? options = null
                 void Add(A.Paragraph paragraph, int paragraphNumber, int? row, int? column, string? name, SourceKind kind)
                 {
                     token.ThrowIfCancellationRequested();
-                    var text = new BoundedTextBuilder(context.Limits.MaxSegmentCharacters, output.RemainingCharacters);
-                    foreach (var child in paragraph.ChildElements)
-                    {
-                        token.ThrowIfCancellationRequested();
-                        if (child is A.Run run) text.Append(run.Text?.Text);
-                        else if (child is A.Field field) text.Append(field.Text?.Text);
-                        else if (child is A.Break) text.Append('\n');
-                    }
-                    var value = text.ToString();
+                    var value = ParagraphText(paragraph, context.Limits.MaxSegmentCharacters, output.RemainingCharacters, token);
                     if (string.IsNullOrWhiteSpace(value)) return;
                     var id = $"ppt:s{slideNumber}:o{objectNumber}:r{row}:c{column}:p{paragraphNumber}";
                     output.Add(new TextSegment(id, value, new SourceLocator(kind, Paragraph: paragraphNumber,
@@ -93,5 +85,41 @@ public sealed class PowerPointTextExtractor(DocumentScopeOptions? options = null
         }
         token.ThrowIfCancellationRequested();
         return output.Complete();
+    }
+
+    internal static string ParagraphText(A.Paragraph paragraph, int maxSegmentCharacters, long remainingCharacters, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxSegmentCharacters);
+        ArgumentOutOfRangeException.ThrowIfNegative(remainingCharacters);
+        A.Run? singleRun = null;
+        var simple = true;
+        foreach (var child in paragraph.ChildElements)
+        {
+            token.ThrowIfCancellationRequested();
+            if (child is A.Run run && singleRun is null) singleRun = run;
+            else if (child is A.Run or A.Field or A.Break) { simple = false; break; }
+        }
+        if (simple)
+        {
+            // Use the same direct Text property as the general path. Properties and other
+            // descendants never expand the searchable scope of a paragraph or a shape.
+            var value = singleRun?.Text?.Text ?? string.Empty;
+            if (value.Length > maxSegmentCharacters)
+                throw new SearchResourceLimitException(nameof(SearchResourceLimits.MaxSegmentCharacters), maxSegmentCharacters);
+            if (value.Length > remainingCharacters)
+                throw new ExtractionException("文档累计提取内容超过字符上限，已停止构建文字；未截断或发布部分文档。");
+            return value;
+        }
+
+        var text = new BoundedTextBuilder(maxSegmentCharacters, remainingCharacters);
+        foreach (var child in paragraph.ChildElements)
+        {
+            token.ThrowIfCancellationRequested();
+            if (child is A.Run run) text.Append(run.Text?.Text);
+            else if (child is A.Field field) text.Append(field.Text?.Text);
+            else if (child is A.Break) text.Append('\n');
+        }
+        return text.ToString();
     }
 }
