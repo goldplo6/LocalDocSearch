@@ -29,7 +29,7 @@ function Copy-ReleaseSnapshot([string]$Root, [string]$Destination) {
             $extension = [IO.Path]::GetExtension($path).ToLowerInvariant()
             $isSource = $extension -in @('.cs','.csproj','.axaml','.resx','.ico','.png','.svg','.manifest','.props','.targets')
             $isLock = $leaf -eq 'packages.lock.json'
-            $isFixture = $relative -match '^tests/fixtures/(mixed|long-documents|encoding|text)/[^/]+$' -and ($extension -in @('.txt','.md','.log','.csv','.docx','.xlsx','.pptx','.pdf','.tmp') -or $leaf -eq 'README')
+            $isFixture = $relative -match '^tests/fixtures/(mixed|long-documents|encoding|text)/[^/]+$' -and $extension -in @('.txt','.md','.log','.csv','.docx','.xlsx','.pptx','.pdf','.tmp')
             if ($isSource -or $isLock -or $isFixture) { $files.Add($path) }
         }
     }
@@ -60,7 +60,7 @@ function New-ReleaseZip([string]$Directory, [string]$ZipPath, [string]$TopLevelN
     } finally { $archive.Dispose(); $stream.Dispose() }
 }
 function Assert-ReleasePackage([string]$Directory) {
-    foreach ($required in @('DocSearch.exe','DocSearch.dll','DocSearch.deps.json','DocSearch.runtimeconfig.json','coreclr.dll','hostfxr.dll','hostpolicy.dll','clrjit.dll','System.Private.CoreLib.dll','av_libglesv2.dll','libSkiaSharp.dll','libHarfBuzzSharp.dll','LICENSE','THIRD-PARTY-NOTICES.md','README.md','docs/privacy.md','docs/security.md','docs/release-guide.md','docs/dependency-licenses/inventory.json','build-record.json')) {
+    foreach ($required in @('DocSearch.exe','DocSearch.dll','DocSearch.deps.json','DocSearch.runtimeconfig.json','coreclr.dll','hostfxr.dll','hostpolicy.dll','clrjit.dll','System.Private.CoreLib.dll','av_libglesv2.dll','libSkiaSharp.dll','libHarfBuzzSharp.dll','LICENSE','THIRD-PARTY-NOTICES.md','README.md','skills/docsearch/SKILL.md','docs/dependency-licenses/inventory.json','build-record.json')) {
         if (-not (Test-Path -LiteralPath (Join-Path $Directory $required) -PathType Leaf)) { throw "Published package missing: $required" }
     }
     $inventory = Get-Content (Join-Path $Directory 'docs/dependency-licenses/inventory.json') -Raw | ConvertFrom-Json -AsHashtable

@@ -82,10 +82,10 @@ try {
 } finally { Pop-Location }
 # Check source locks stayed intact even though all restores/builds ran in isolation.
 foreach ($sourceLock in $sourceLocks) { if ((Get-ReleaseHash (Join-Path $releaseRoot $sourceLock.path)) -ne $sourceLock.sha256) { throw "Source lock changed externally during release: $($sourceLock.path)" } }
-foreach ($document in @('LICENSE','THIRD-PARTY-NOTICES.md','CHANGELOG.md','CONTRIBUTING.md')) { Copy-Item -LiteralPath (Join-Path $releaseRoot $document) -Destination (Join-Path $package $document) }
+foreach ($document in @('LICENSE','THIRD-PARTY-NOTICES.md','README.md')) { Copy-Item -LiteralPath (Join-Path $releaseRoot $document) -Destination (Join-Path $package $document) }
 New-Item -ItemType Directory -Path (Join-Path $package 'docs') -Force | Out-Null
-foreach ($document in @('privacy.md','security.md','release-guide.md')) { Copy-Item (Join-Path $releaseRoot ('docs/' + $document)) (Join-Path $package ('docs/' + $document)) }
-Copy-Item (Join-Path $PSScriptRoot 'release-package-readme.md') (Join-Path $package 'README.md')
+New-Item -ItemType Directory -Path (Join-Path $package 'skills/docsearch') -Force | Out-Null
+Copy-Item -LiteralPath (Join-Path $releaseRoot 'skills/docsearch/SKILL.md') -Destination (Join-Path $package 'skills/docsearch/SKILL.md')
 Copy-Item (Join-Path $releaseRoot 'docs/dependency-licenses.sources.json') (Join-Path $package 'docs/dependency-licenses.sources.json')
 $licenseDirectory = Join-Path $package 'docs/dependency-licenses'
 & (Join-Path $PSScriptRoot 'license-inventory.ps1') -AssetsPath $desktopAssets -PackageRoot $env:NUGET_PACKAGES -SdkDirectory $sdkDirectory -OutputDirectory $licenseDirectory -PublishedDirectory $package -RuntimeVersion $runtimeVersion | Out-Host

@@ -11,10 +11,10 @@
 **/obj/
 **/TestResults/
 /artifacts/*
-!/artifacts/README.md
 .vs/
 .idea/
 *.user
 *.suo
 *.log
 !tests/fixtures/**/*.log
+/tests/fixtures/**/README
